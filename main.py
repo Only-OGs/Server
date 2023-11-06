@@ -11,7 +11,7 @@ app = socketio.WSGIApp(sio)
 @sio.event
 def message(sid, data):
     print(f"Received message: {data}")
-    # Send a response to the client
+    # Sende Antwort an Client
     sio.emit('response', f"Server received your message: {data}", room=sid)
 
 if __name__ == '__main__':
