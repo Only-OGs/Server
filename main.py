@@ -1,13 +1,13 @@
 import socketio
 import eventlet
 
-# Create a Socket.IO server
+# Server erstellen
 sio = socketio.Server(cors_allowed_origins='*')
 
-# Create a WSGI app for the server
+# WSGI App
 app = socketio.WSGIApp(sio)
 
-# Define an event handler for the 'message' event
+# Event Handler für eingehende Nachrichten
 @sio.event
 def message(sid, data):
     print(f"Received message: {data}")
@@ -15,5 +15,5 @@ def message(sid, data):
     sio.emit('response', f"Server received your message: {data}", room=sid)
 
 if __name__ == '__main__':
-    # Start the server using eventlet
+    # Starten mit eventlet
     eventlet.wsgi.server(eventlet.listen(('localhost', 8080)), app)
