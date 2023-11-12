@@ -24,15 +24,15 @@ def message(sid, data):
         # Hier gehen wir davon aus, dass der empfangene Datenstring ein JSON-Objekt ist
         json_data = sio.manager.rooms[sid].decode(data)
 
-        # Jetzt können Sie das JSON-Objekt verarbeiten
+        # Beispielverarbeitung
         print(f"Received JSON from {sid}: {json_data}")
 
-        # Beispiel: Senden Sie eine Antwort an den Client
+        # Antwort an Client
         response_data = {'status': 'success', 'message': 'JSON received successfully'}
         sio.emit('response', response_data, room=sid)
 
     except Exception as e:
-        print(f"Error processing JSON from {sid}: {e}")
+        print(f"Error processing JSON from {sid}: {e}, {data}")
 
 if __name__ == '__main__':
     # Starten mit eventlet
