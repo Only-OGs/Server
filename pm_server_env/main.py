@@ -21,11 +21,8 @@ def disconnect(sid):
 @sio.event
 def message(sid, data):
     try:
-        # Hier gehen wir davon aus, dass der empfangene Datenstring ein JSON-Objekt ist
-        json_data = sio.manager.rooms[sid].decode(data)
-
         # Beispielverarbeitung
-        print(f"Received JSON from {sid}: {json_data}")
+        print(f"Received JSON from {sid}: {data}")
 
         # Antwort an Client
         response_data = {'status': 'success', 'message': 'JSON received successfully'}
