@@ -32,6 +32,7 @@ def message(sid, data):
     try:
         # Beispielverarbeitung
         print(f"Received JSON from {sid}: {data}")
+        json_data = json.load(data)
 
         # Antwort an Client
         response_data = {'status': 'success', 'message': 'JSON received successfully'}
