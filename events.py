@@ -2,15 +2,6 @@ import socketio
 import eventlet
 import json
 
-# Server erstellen
-sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
-
-# WSGI App
-app = socketio.WSGIApp(sio)
-
-connected_clients = {}
-
-
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
@@ -39,7 +30,3 @@ def message(sid, data):
     except Exception as e:
         print(f"Error processing JSON from {sid}: {e}, {data}")
 
-
-if __name__ == '__main__':
-    # Starten mit eventlet
-    eventlet.wsgi.server(eventlet.listen(('localhost', 8080)), app)
