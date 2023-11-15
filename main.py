@@ -72,7 +72,7 @@ def write_user_to_file(data, sid):
     password = data["password"]
 
     try:
-        with open(file_path, 'w') as file:
+        with open(file_path, 'a') as file:
                 file.write(f"{name} {password}\n")
 
         print(f"Die Benutzerdaten wurden erfolgreich in die Datei {file_path} geschrieben.")
@@ -81,16 +81,13 @@ def write_user_to_file(data, sid):
     except Exception as e:
         print(f"Ein Fehler ist aufgetreten: {e}")
 def load_registered_users():
-    credentials_dict = {}
 
     try:
         with open(users.txt, 'r') as file:
             for line in file:
                 # Annahme: Benutzername und Passwort sind durch ein Leerzeichen getrennt
                 username, password = line.strip().split()
-                credentials_dict[username] = password
-
-        return credentials_dict
+                users[username] = password
 
     except FileNotFoundError:
         print(f"Die Datei {file_path} wurde nicht gefunden.")
@@ -101,4 +98,5 @@ def load_registered_users():
 
 if __name__ == '__main__':
     # Starten mit eventlet
+
     eventlet.wsgi.server(eventlet.listen(('localhost', 8080)), app)
