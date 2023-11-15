@@ -98,5 +98,5 @@ def load_registered_users():
 
 if __name__ == '__main__':
     # Starten mit eventlet
-
+    load_registered_users()
     eventlet.wsgi.server(eventlet.listen(('localhost', 8080)), app)
