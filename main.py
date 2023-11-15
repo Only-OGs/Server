@@ -50,10 +50,10 @@ def login(sid, data):
     if name in users:
         if users[name] == password:
             connected_clients[sid] = name
-            response_data = {'status': 'login_success', 'message': f"Login successful, welcome {name}"}
+            response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
             sio.emit('response', response_data, room=sid)
         else:
-            response_data = {'status': 'login_failed', 'message': "Password doesn't match"}
+            response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
             sio.emit('response', response_data, room=sid)
 @sio.event
 def register(sid, data):
@@ -61,11 +61,11 @@ def register(sid, data):
     password = data["password"]
 
     if name in users:
-        response_data = {'status': 'register_failed', 'message': f"{name} already registered on this server"}
+        response_data = {'status': 'register_failed', 'message': f"{name} ist bereits registriert"}
         sio.emit('response', response_data, room=sid)
     else:
         write_user_to_file(data, sid)
-        response_data = {'status': 'register_success', 'message': f"{name} has been successfully registered"}
+        response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
         sio.emit('response', response_data, room=sid)
 def write_user_to_file(data, sid):
     name = data["user"]
