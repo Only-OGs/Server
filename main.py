@@ -55,6 +55,9 @@ def login(sid, data):
         else:
             response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
             sio.emit('response', response_data, room=sid)
+    else:
+        response_data = {'status': 'login_failed', 'message': f"{name} ist nicht registriert."}
+        sio.emit('response', response_data, room=sid)
 @sio.event
 def register(sid, data):
     name = data["user"]
