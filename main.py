@@ -9,6 +9,9 @@ sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
 
 connected_clients = {}
+users = {}
+
+file_path = "users.txt"
 
 
 # Verbindung eines neuen Clients
@@ -30,17 +33,65 @@ def disconnect(sid):
 @sio.event
 def message(sid, data):
     try:
-        # Beispielverarbeitung
         print(f"Received JSON from {sid}: {data}")
         json_data = json.load(data)
 
         # Antwort an Client
         response_data = {'status': 'success', 'message': 'JSON received successfully'}
         sio.emit('response', response_data, room=sid)
-
     except Exception as e:
         print(f"Error processing JSON from {sid}: {e}, {data}")
 
+@sio.event
+def login(sid, data):
+    name = data["user"]
+    password = data["password"]
+
+    if name in users:
+        if users[name] == password:
+            connected_clients[sid] = name
+            sio.emit('response', f"Login successful, welcome {name}", room=sid)
+@sio.event
+def register(sid, data):
+    name = data["user"]
+    password = data["password"]
+
+    if name in users:
+        sio.emit('response', "User with that name already registered on this server.", room=sid)
+    else:
+        write_user_to_file(data, sid)
+        sio.emit('response', "Registered successfully.", room=sid)
+def write_user_to_file(data, sid):
+    name = data["user"]
+    password = data["password"]
+
+    try:
+        with open(file_path, 'w') as file:
+                file.write(f"{name} {password}\n")
+
+        print(f"Die Benutzerdaten wurden erfolgreich in die Datei {file_path} geschrieben.")
+        users[name] = password
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+def load_registered_users():
+    credentials_dict = {}
+
+    try:
+        with open(users.txt, 'r') as file:
+            for line in file:
+                # Annahme: Benutzername und Passwort sind durch ein Leerzeichen getrennt
+                username, password = line.strip().split()
+                credentials_dict[username] = password
+
+        return credentials_dict
+
+    except FileNotFoundError:
+        print(f"Die Datei {file_path} wurde nicht gefunden.")
+        return None
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+        return None
 
 if __name__ == '__main__':
     # Starten mit eventlet
