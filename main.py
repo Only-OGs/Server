@@ -86,7 +86,7 @@ def write_user_to_file(data, sid):
 def load_registered_users():
 
     try:
-        with open(users.txt, 'r') as file:
+        with open(file_path, 'r') as file:
             for line in file:
                 # Annahme: Benutzername und Passwort sind durch ein Leerzeichen getrennt
                 username, password = line.strip().split()
