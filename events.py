@@ -58,8 +58,10 @@ def login(sid, data):
 @sio.event
 def logout(sid, data):
     try:
+        name = logic.connected_clients[sid]
         response_data = {'status': 'logout_success', 'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
         logic.connected_clients[sid] = False
+        print(name + " wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
 
