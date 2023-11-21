@@ -7,12 +7,10 @@ sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
 
 
-
-
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
-    logic.connected_clients[sid] = False
+    logic.connected_clients[sid] = {"username": False, "lobby": False}
     sio.emit('connection_success', sid, room=sid)
     print(f"Client connected: {sid}, Current Players: {logic.connected_clients}")
 
@@ -46,7 +44,7 @@ def login(sid, data):
 
     if name in logic.users:
         if logic.users[name] == password:
-            logic.connected_clients[sid] = name
+            logic.connected_clients[sid][name] = name
             response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
         else:
             response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
@@ -55,17 +53,20 @@ def login(sid, data):
 
     sio.emit('response', response_data, room=sid)
 
+
 @sio.event
 def logout(sid, data):
     try:
         name = logic.connected_clients[sid]
-        response_data = {'status': 'logout_success', 'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
-        logic.connected_clients[sid] = False
+        response_data = {'status': 'logout_success',
+                         'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
+        logic.connected_clients[sid][name] = False
         print(name + " wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
 
     sio.emit('response', response_data, room=sid)
+
 
 # Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
 @sio.event
@@ -80,3 +81,10 @@ def register(sid, data):
         response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
 
     sio.emit('response', response_data, room=sid)
+
+@sio.event
+def createLobby(sid):
+    lobby = logic.get_lobby()
+    logic.connected_clients[sid][lobby] = lobby
+    response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
+    sio.emit('response', response_data)

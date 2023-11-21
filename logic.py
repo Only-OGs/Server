@@ -1,3 +1,6 @@
+import random
+import string
+
 # Clients die aktuell connected sind, Value ist True, wenn diese nur connected sind,
 # sind sie tatsächlich eingeloggt haben sie einen Username
 connected_clients = {}
@@ -7,6 +10,9 @@ users = {}
 
 # Pfad zum
 file_path = "users.txt"
+
+# Set aus Lobbies
+lobbies = set()
 
 # User die registriert werden, werden in die users.txt geschrieben und anschließend zur
 # Laufzeit in das User dict aufgenommen
@@ -40,3 +46,8 @@ def load_registered_users():
     except Exception as e:
         print(f"Ein Fehler ist aufgetreten: {e}")
         return None
+
+def get_lobby():
+    lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+    lobbies.add(lobby)
+    return lobby
