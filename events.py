@@ -1,7 +1,7 @@
 import socketio
 import eventlet
 import json
-import Logic
+import logic
 
 # Server erstellen
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
@@ -15,16 +15,16 @@ app = socketio.WSGIApp(sio)
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
-    Logic.connected_clients[sid] = True
+    logic.connected_clients[sid] = True
     sio.emit('connection_success', sid, room=sid)
-    print(f"Client connected: {sid}, Current Players: {Logic.connected_clients}")
+    print(f"Client connected: {sid}, Current Players: {logic.connected_clients}")
 
 
 # Verbindungsabbruch eines Clients
 @sio.event
 def disconnect(sid):
-    Logic.connected_clients.pop(sid)
-    print(f"Client disconnected: {sid}, Current Players: {Logic.connected_clients}")
+    logic.connected_clients.pop(sid)
+    print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
 
 
 # Event Handler für eingehende Nachrichten
@@ -47,9 +47,9 @@ def login(sid, data):
     name = data["user"]
     password = data["password"]
 
-    if name in Logic.users:
-        if Logic.users[name] == password:
-            Logic.connected_clients[sid] = name
+    if name in logic.users:
+        if logic.users[name] == password:
+            logic.connected_clients[sid] = name
             response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
         else:
             response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
@@ -65,10 +65,10 @@ def register(sid, data):
     name = data["user"]
     password = data["password"]
 
-    if name in Logic.users:
+    if name in logic.users:
         response_data = {'status': 'register_failed', 'message': f"{name} ist bereits registriert"}
     else:
-        Logic.write_user_to_file(data, sid)
+        logic.write_user_to_file(data, sid)
         response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
 
     sio.emit('response', response_data, room=sid)
