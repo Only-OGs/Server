@@ -3,10 +3,7 @@ import eventlet
 import json
 import logic
 
-# Server erstellen
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
-
-# WSGI App
 app = socketio.WSGIApp(sio)
 
 
@@ -15,7 +12,7 @@ app = socketio.WSGIApp(sio)
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
-    logic.connected_clients[sid] = True
+    logic.connected_clients[sid] = False
     sio.emit('connection_success', sid, room=sid)
     print(f"Client connected: {sid}, Current Players: {logic.connected_clients}")
 
@@ -58,6 +55,15 @@ def login(sid, data):
 
     sio.emit('response', response_data, room=sid)
 
+@sio.event
+def logout(sid, data):
+    try:
+        response_data = {'status': 'logout_success', 'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
+        logic.connected_clients[sid] = False
+    except Exception as e:
+        response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
+
+    sio.emit('response', response_data, room=sid)
 
 # Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
 @sio.event
