@@ -82,9 +82,22 @@ def register(sid, data):
 
     sio.emit('response', response_data, room=sid)
 
+# Client will Lobby erstellen
 @sio.event
 def createLobby(sid):
     lobby = logic.get_lobby()
-    logic.connected_clients[sid][lobby] = lobby
+    logic.connected_clients["sid"]["lobby"] = lobby
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
     sio.emit('response', response_data)
+
+@sio.event
+def joinLobby(sid, data):
+    new_lobby = data["lobby"]
+    if new_lobby in logic.lobbies:
+        logic.connected_clients[sid]["lobby"] = new_lobby
+        response_data = {'status': 'joined', 'message': f"{new_lobby} erfolgreich beigetreten!"}
+    else:
+        response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
+    sio.emit('response', response_data)
+
+

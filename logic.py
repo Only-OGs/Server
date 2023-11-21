@@ -1,5 +1,6 @@
 import random
 import string
+import threading
 
 # Clients die aktuell connected sind, Value ist True, wenn diese nur connected sind,
 # sind sie tatsächlich eingeloggt haben sie einen Username
@@ -51,3 +52,6 @@ def get_lobby():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     lobbies.add(lobby)
     return lobby
+
+def start_lobby(lobby):
+    #TODO: Lobby starten
