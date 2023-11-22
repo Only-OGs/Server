@@ -86,7 +86,7 @@ def register(sid, data):
 @sio.event
 def createLobby(sid):
     lobby = logic.get_lobby()
-    logic.connected_clients["sid"]["lobby"] = lobby
+    logic.connected_clients[sid]["lobby"] = lobby
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
     sio.emit('response', response_data)
 
