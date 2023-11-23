@@ -10,7 +10,7 @@ app = socketio.WSGIApp(sio)
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
-    logic.connected_clients[sid] = {"username": False, "lobby": False}
+    logic.connected_clients[sid] = {"name": False, "lobby": False}
     sio.emit('connection_success', sid, room=sid)
     print(f"Client connected: {sid}, Current Players: {logic.connected_clients}")
 
@@ -27,7 +27,6 @@ def disconnect(sid):
 def message(sid, data):
     try:
         print(f"Received JSON from {sid}: {data}")
-        json_data = json.load(data)
 
         # Antwort an Client
         response_data = {'status': 'success', 'message': 'JSON received successfully'}
@@ -40,6 +39,7 @@ def message(sid, data):
 @sio.event
 def login(sid, data):
     print("received ", data, " from ", sid)
+
     name = data["user"]
     password = data["password"]
 
@@ -60,8 +60,10 @@ def login(sid, data):
 @sio.event
 def logout(sid, data):
     print("received logout request from ", sid)
+
     try:
         name = logic.connected_clients[sid]
+
         response_data = {'status': 'logout_success',
                          'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
         logic.connected_clients[sid][name] = False
@@ -94,10 +96,14 @@ def register(sid, data):
 @sio.event
 def create_lobby(sid):
     print("received lobby request from ", sid)
+
     lobby = logic.get_lobby()
     logic.connected_clients[sid]["lobby"] = lobby
+
     sio.enter_room(sid, lobby)
+
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
+
     sio.emit('response', response_data)
 
     print("sent ", response_data, " to ", sid)
@@ -105,7 +111,9 @@ def create_lobby(sid):
 @sio.event
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
+
     new_lobby = data["lobby"]
+
     if new_lobby in logic.lobbies:
         logic.connected_clients[sid]["lobby"] = new_lobby
         response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}"}
@@ -113,7 +121,9 @@ def join_lobby(sid, data):
         sio.enter_room(sid, new_lobby)
     else:
         response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
-    sio.emit('player_joined', response_data, room=sid)
 
+    sio.emit('player_joined', response_data, room=sid)
+    print(logic.connected_clients)
+    print(logic.users)
     print("sent ", response_data, " to ", sid)
 

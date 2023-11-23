@@ -56,7 +56,8 @@ def get_lobby():
 def get_lobby_list(lobby):
     lobbyString = ""
     for client in connected_clients:
-        if connected_clients[client]["lobby"] is lobby:
+        if connected_clients[client]["lobby"] == lobby:
+            print(connected_clients[client]["name"])
             lobbyString += connected_clients[client]["name"] + ";"
     return lobbyString[:-1]
 
