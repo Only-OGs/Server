@@ -53,6 +53,8 @@ def login(sid, data):
 
     sio.emit('response', response_data, room=sid)
 
+    print("sent ", response_data, " to ", sid)
+
 
 @sio.event
 def logout(sid, data):
@@ -67,6 +69,7 @@ def logout(sid, data):
 
     sio.emit('response', response_data, room=sid)
 
+    print("sent ", response_data, " to ", sid)
 
 # Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
 @sio.event
@@ -82,26 +85,30 @@ def register(sid, data):
 
     sio.emit('response', response_data, room=sid)
 
+    print("sent ", response_data, " to ", sid)
+
 # Client will Lobby erstellen
 @sio.event
-def createLobby(sid):
+def create_lobby(sid):
     lobby = logic.get_lobby()
     logic.connected_clients[sid]["lobby"] = lobby
     sio.enter_room(sid, lobby)
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
     sio.emit('response', response_data)
 
+    print("sent ", response_data, " to ", sid)
+
 @sio.event
-def joinLobby(sid, data):
+def join_lobby(sid, data):
     new_lobby = data["lobby"]
     if new_lobby in logic.lobbies:
         logic.connected_clients[sid]["lobby"] = new_lobby
         response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}"}
-
         sio.emit('player_joined', response_data, room=data["lobby"])
         sio.enter_room(sid, new_lobby)
     else:
         response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
     sio.emit('player_joined', response_data, room=sid)
 
+    print("sent ", response_data, " to ", sid)
 
