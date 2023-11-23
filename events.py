@@ -39,6 +39,7 @@ def message(sid, data):
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
 @sio.event
 def login(sid, data):
+    print("received ", data, " from ", sid)
     name = data["user"]
     password = data["password"]
 
@@ -58,6 +59,7 @@ def login(sid, data):
 
 @sio.event
 def logout(sid, data):
+    print("received logout request from ", sid)
     try:
         name = logic.connected_clients[sid]
         response_data = {'status': 'logout_success',
@@ -74,6 +76,7 @@ def logout(sid, data):
 # Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
 @sio.event
 def register(sid, data):
+    print("received ", data, " from ", sid)
     name = data["user"]
     password = data["password"]
 
@@ -90,6 +93,7 @@ def register(sid, data):
 # Client will Lobby erstellen
 @sio.event
 def create_lobby(sid):
+    print("received lobby request from ", sid)
     lobby = logic.get_lobby()
     logic.connected_clients[sid]["lobby"] = lobby
     sio.enter_room(sid, lobby)
@@ -100,6 +104,7 @@ def create_lobby(sid):
 
 @sio.event
 def join_lobby(sid, data):
+    print("received ", data, " from ", sid)
     new_lobby = data["lobby"]
     if new_lobby in logic.lobbies:
         logic.connected_clients[sid]["lobby"] = new_lobby
