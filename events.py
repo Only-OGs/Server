@@ -126,7 +126,7 @@ def sent_message(sid, chat_message):
 @sio.event
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
-
+    response_data = "nothing"
     new_lobby = data["lobby"]
 
     if new_lobby in logic.lobbies:
