@@ -80,6 +80,7 @@ def logout(sid, data):
 
     print("sent ", response_data, " to ", sid)
 
+
 # Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
 @sio.event
 def register(sid, data):
@@ -97,6 +98,7 @@ def register(sid, data):
 
     print("sent ", response_data, " to ", sid)
 
+
 # Client will Lobby erstellen
 @sio.event
 def create_lobby(sid):
@@ -113,11 +115,13 @@ def create_lobby(sid):
 
     print("sent ", response_data, " to ", sid)
 
+
 @sio.event
 def sent_message(sid, chat_message):
-     name = logic.connected_clients[sid]["name"]
-     lobby = logic.connected_clients[sid]["lobby"]
-     sio.emit('new_message', name+";"+chat_message, room=lobby)
+    name = logic.connected_clients[sid]["name"]
+    lobby = logic.connected_clients[sid]["lobby"]
+    sio.emit('new_message', name + ";" + chat_message, room=lobby)
+
 
 @sio.event
 def join_lobby(sid, data):
@@ -131,7 +135,7 @@ def join_lobby(sid, data):
         sio.enter_room(sid, new_lobby)
         sio.emit('player_joined', response_data, room=data["lobby"])
 
-        lobby_response = {'message': f"{new_lobby}"}
+        lobby_response = {'status': 'lobby', 'message': f"{new_lobby}"}
         sio.emit('response', lobby_response, room=sid)
     else:
         response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
@@ -140,4 +144,3 @@ def join_lobby(sid, data):
     print(logic.connected_clients)
     print(logic.users)
     print("sent ", response_data, " to ", sid)
-
