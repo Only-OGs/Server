@@ -15,6 +15,7 @@ file_path = "users.txt"
 # Set aus Lobbies
 lobbies = set()
 
+
 # User die registriert werden, werden in die users.txt geschrieben und anschließend zur
 # Laufzeit in das User dict aufgenommen
 def write_user_to_file(data, sid):
@@ -48,10 +49,12 @@ def load_registered_users():
         print(f"Ein Fehler ist aufgetreten: {e}")
         return None
 
+
 def get_lobby():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     lobbies.add(lobby)
     return lobby
+
 
 def get_lobby_list(lobby):
     lobbyString = ""
@@ -61,6 +64,7 @@ def get_lobby_list(lobby):
             lobbyString += connected_clients[client]["name"] + ";"
     return lobbyString[:-1]
 
+
 def start_lobby(lobby):
-    #TODO: Lobby starten
+    # TODO: Lobby starten
     return

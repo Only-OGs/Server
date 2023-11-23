@@ -18,6 +18,11 @@ def connect(sid, environ):
 # Verbindungsabbruch eines Clients
 @sio.event
 def disconnect(sid):
+    old_lobby = logic.connected_clients[sid]["lobby"]
+
+    sio.leave_room(sid, old_lobby)
+
+    sio.emit('player_joined', logic.get_lobby_list(old_lobby), room=old_lobby)
     logic.connected_clients.pop(sid)
     print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
 
