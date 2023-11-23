@@ -44,7 +44,7 @@ def login(sid, data):
 
     if name in logic.users:
         if logic.users[name] == password:
-            logic.connected_clients[sid][name] = name
+            logic.connected_clients[sid]["name"] = name
             response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
         else:
             response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
@@ -87,6 +87,7 @@ def register(sid, data):
 def createLobby(sid):
     lobby = logic.get_lobby()
     logic.connected_clients[sid]["lobby"] = lobby
+    sio.enter_room(sid, lobby)
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
     sio.emit('response', response_data)
 
@@ -95,9 +96,12 @@ def joinLobby(sid, data):
     new_lobby = data["lobby"]
     if new_lobby in logic.lobbies:
         logic.connected_clients[sid]["lobby"] = new_lobby
-        response_data = {'status': 'joined', 'message': f"{new_lobby} erfolgreich beigetreten!"}
+        response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}"}
+
+        sio.emit('player_joined', response_data, room=data["lobby"])
+        sio.enter_room(sid, new_lobby)
     else:
         response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
-    sio.emit('response', response_data)
+    sio.emit('player_joined', response_data, room=sid)
 
 
