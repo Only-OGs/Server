@@ -122,8 +122,8 @@ def join_lobby(sid, data):
     if new_lobby in logic.lobbies:
         logic.connected_clients[sid]["lobby"] = new_lobby
         response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}"}
-        sio.emit('player_joined', response_data, room=data["lobby"])
         sio.enter_room(sid, new_lobby)
+        sio.emit('player_joined', response_data, room=data["lobby"])
     else:
         response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
 
