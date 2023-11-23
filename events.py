@@ -137,7 +137,6 @@ def join_lobby(sid, data):
 
         lobby_response = {'status': 'lobby', 'message': f"{new_lobby}"}
         sio.emit('response', lobby_response, room=sid)
-        sio.emit('player_joined', response_data, room=sid)
 
     print(logic.connected_clients)
     print(logic.users)
