@@ -57,7 +57,7 @@ def get_lobby_list(lobby):
     lobbyString = ""
     for client in connected_clients:
         if connected_clients[client]["lobby"] is lobby:
-            lobbyString += connected_clients[client]["name"] + " "
+            lobbyString += connected_clients[client]["name"] + ";"
     return lobbyString[:-1]
 
 def start_lobby(lobby):
