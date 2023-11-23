@@ -114,6 +114,12 @@ def create_lobby(sid):
     print("sent ", response_data, " to ", sid)
 
 @sio.event
+def sent_message(sid, chat_message):
+     name = logic.connected_clients[sid]["name"]
+     lobby = logic.connected_clients[sid]["lobby"]
+     sio.emit('new_message', name+";"+chat_message, room=lobby)
+
+@sio.event
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
 
@@ -124,6 +130,9 @@ def join_lobby(sid, data):
         response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}"}
         sio.enter_room(sid, new_lobby)
         sio.emit('player_joined', response_data, room=data["lobby"])
+
+        lobby_response = {'message': f"{new_lobby}"}
+        sio.emit('response', lobby_response, room=sid)
     else:
         response_data = {'status': 'failed', 'message': f"Fehler beim Beitritt von {new_lobby}"}
 
