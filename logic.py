@@ -87,6 +87,9 @@ def leave_lobby(sid):
     print("sent ", response_data, " to ", sid)
     events.sio.emit('player_leave', response_data, room=old_lobby)
 
+    if get_lobby_size(old_lobby) == 0:
+        lobbies.remove(old_lobby)
+
 
 def join_lobby(sid, new_lobby):
     connected_clients[sid]["lobby"] = new_lobby
