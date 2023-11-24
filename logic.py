@@ -60,7 +60,7 @@ def get_lobby_list(lobby):
     lobby_string = ""
     for client in connected_clients:
         if connected_clients[client]["lobby"] == lobby:
-            if connected_clients[client]["name"] != False:
+            if connected_clients[client]["name"] is not False:
                 lobby_string += connected_clients[client]["name"] + ";"
     return lobby_string[:-1]
 
@@ -69,7 +69,6 @@ def get_lobby_size(lobby):
     lobby_size = 0
     for client in connected_clients:
         if connected_clients[client]["lobby"] == lobby:
-            print(connected_clients[client]["name"])
             lobby_size += 1
     return lobby_size
 
