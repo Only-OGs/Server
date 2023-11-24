@@ -100,7 +100,7 @@ def join_lobby(sid, new_lobby):
 
 def is_already_on(name):
     for client in connected_clients:
-        if client["name"] == name:
+        if connected_clients[client]["name"] == name:
             return True
 
     return False
