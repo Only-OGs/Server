@@ -19,6 +19,7 @@ def connect(sid, environ):
 @sio.event
 def disconnect(sid):
     old_lobby = logic.connected_clients[sid]["lobby"]
+    logic.connected_clients[sid]["lobby"] = False
 
     sio.leave_room(sid, old_lobby)
 
