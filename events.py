@@ -22,8 +22,8 @@ def disconnect(sid):
     logic.connected_clients[sid]["lobby"] = False
 
     sio.leave_room(sid, old_lobby)
-
-    sio.emit('player_leave', logic.get_lobby_list(old_lobby), room=old_lobby)
+    response_data = {'status': 'left', 'message': f"{logic.get_lobby_list(old_lobby)}", 'lobby': old_lobby}
+    sio.emit('player_leave', response_data, room=old_lobby)
     logic.connected_clients.pop(sid)
     print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
 
