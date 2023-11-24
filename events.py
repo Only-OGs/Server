@@ -143,7 +143,7 @@ def get_lobby(sid):
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)
-            sio.emit("get_lobby", "True", room=sid)
+            sio.emit("get_lobby", "true", room=sid)
             return
 
-    sio.emit("get_lobby", "False", room=sid)
+    sio.emit("get_lobby", "false", room=sid)
