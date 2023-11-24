@@ -22,9 +22,11 @@ def disconnect(sid):
     logic.connected_clients.pop(sid)
     print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
 
+
 @sio.event
 def leave_lobby(sid):
     logic.leave_lobby(sid)
+
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
 @sio.event
@@ -49,7 +51,7 @@ def login(sid, data):
 
 
 @sio.event
-def logout(sid, data):
+def logout(sid):
     print("received logout request from ", sid)
     try:
         name = logic.connected_clients[sid]
@@ -121,7 +123,7 @@ def join_lobby(sid, data):
             logic.join_lobby(sid, new_lobby)
         else:
             response_data = {'status': 'failed', 'message': f"Lobby ist bereits voll", 'lobby': new_lobby}
-            sio.emit("player_joined",response_data, room=sid)
+            sio.emit("player_joined", response_data, room=sid)
     else:
         response_data = {'status': 'failed', 'message': f"Lobby ist nicht bekannt", 'lobby': new_lobby}
         sio.emit("player_joined", response_data, room=sid)
@@ -129,13 +131,14 @@ def join_lobby(sid, data):
     print(logic.users)
     print("sent ", response_data, " to ", sid)
 
+
 @sio.event
 def get_lobby(sid):
     print("received random lobby request from ", sid)
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)
-            sio.emit("get_lobby", "Lobby found", room=sid)
+            sio.emit("get_lobby", "True", room=sid)
             return
 
-    sio.emit("get_lobby","No lobby available", room=sid)
+    sio.emit("get_lobby", "False", room=sid)

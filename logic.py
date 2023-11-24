@@ -89,6 +89,7 @@ def leave_lobby(sid):
 
     if get_lobby_size(old_lobby) == 0:
         lobbies.remove(old_lobby)
+        print(old_lobby, " deleted, lobbies available: ", lobbies)
 
 
 def join_lobby(sid, new_lobby):
