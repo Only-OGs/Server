@@ -90,7 +90,7 @@ def register(sid, data):
 def create_lobby(sid):
     print("received lobby request from ", sid)
 
-    lobby = logic.get_lobby()
+    lobby = logic.get_lobby_code()
     logic.connected_clients[sid]["lobby"] = lobby
 
     sio.enter_room(sid, lobby)
@@ -131,6 +131,7 @@ def join_lobby(sid, data):
 
 @sio.event
 def get_lobby(sid):
+    print("received random lobby request from ", sid)
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)

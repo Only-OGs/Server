@@ -50,7 +50,7 @@ def load_registered_users():
         return None
 
 
-def get_lobby():
+def get_lobby_code():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     lobbies.add(lobby)
     return lobby
@@ -64,6 +64,7 @@ def get_lobby_list(lobby):
                 lobby_string += connected_clients[client]["name"] + ";"
     return lobby_string[:-1]
 
+
 def get_lobby_size(lobby):
     lobby_size = 0
     for client in connected_clients:
@@ -71,19 +72,25 @@ def get_lobby_size(lobby):
             print(connected_clients[client]["name"])
             lobby_size += 1
     return lobby_size
+
+
 def start_lobby(lobby):
     # TODO: Lobby starten
     return
+
 
 def leave_lobby(sid):
     old_lobby = connected_clients[sid]["lobby"]
     connected_clients[sid]["lobby"] = False
     events.sio.leave_room(sid, old_lobby)
     response_data = {'status': 'left', 'message': f"{get_lobby_list(old_lobby)}", 'lobby': old_lobby}
+    print("sent ", response_data, " to ", sid)
     events.sio.emit('player_leave', response_data, room=old_lobby)
+
 
 def join_lobby(sid, new_lobby):
     connected_clients[sid]["lobby"] = new_lobby
     response_data = {'status': 'joined', 'message': f"{get_lobby_list(new_lobby)}", 'lobby': new_lobby}
     events.sio.enter_room(sid, new_lobby)
     events.sio.emit('player_joined', response_data, room=new_lobby)
+    print("sent ", response_data, " to ", sid)
