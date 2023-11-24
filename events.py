@@ -26,20 +26,6 @@ def disconnect(sid):
     logic.connected_clients.pop(sid)
     print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
 
-
-# Event Handler für eingehende Nachrichten
-@sio.event
-def message(sid, data):
-    try:
-        print(f"Received JSON from {sid}: {data}")
-
-        # Antwort an Client
-        response_data = {'status': 'success', 'message': 'JSON received successfully'}
-        sio.emit('response', response_data, room=sid)
-    except Exception as e:
-        print(f"Error processing JSON from {sid}: {e}, {data}")
-
-
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
 @sio.event
 def login(sid, data):
@@ -111,7 +97,7 @@ def create_lobby(sid):
 
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
 
-    sio.emit('response', response_data)
+    sio.emit('lobby_created', response_data)
 
     print("sent ", response_data, " to ", sid)
 
@@ -121,7 +107,7 @@ def sent_message(sid, chat_message):
     name = logic.connected_clients[sid]["name"]
     lobby = logic.connected_clients[sid]["lobby"]
     sio.emit('new_message', name + ";" + chat_message, room=lobby)
-    print("LOBBY-", lobby, ": ", name, " sent message -> ", chat_message)
+    print("LOBBY -", lobby, ": ", name, " sent message -> ", chat_message)
 
 
 @sio.event
@@ -132,12 +118,11 @@ def join_lobby(sid, data):
 
     if new_lobby in logic.lobbies:
         logic.connected_clients[sid]["lobby"] = new_lobby
-        response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}"}
+        response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}", 'lobby': new_lobby}
         sio.enter_room(sid, new_lobby)
         sio.emit('player_joined', response_data, room=data["lobby"])
 
         lobby_response = {'status': 'lobby', 'message': f"{new_lobby}"}
-        sio.emit('response', lobby_response, room=sid)
 
     print(logic.connected_clients)
     print(logic.users)
