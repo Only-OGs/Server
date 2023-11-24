@@ -97,3 +97,10 @@ def join_lobby(sid, new_lobby):
     events.sio.enter_room(sid, new_lobby)
     events.sio.emit('player_joined', response_data, room=new_lobby)
     print("sent ", response_data, " to ", sid)
+
+def is_already_on(name):
+    for client in connected_clients:
+        if client["name"] == name:
+            return True
+
+    return False

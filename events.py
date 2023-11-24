@@ -36,6 +36,11 @@ def login(sid, data):
     name = data["user"]
     password = data["password"]
 
+    if logic.is_already_on(name):
+        response_data = {'status': 'login_failed', 'message': "Benutzer bereits angemeldet"}
+        sio.emit('response', response_data, room=sid)
+        return
+
     if name in logic.users:
         if logic.users[name] == password:
             logic.connected_clients[sid]["name"] = name
