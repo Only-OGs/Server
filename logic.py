@@ -1,6 +1,6 @@
 import random
 import string
-import threading
+import events
 
 # Clients die aktuell connected sind, Value ist True, wenn diese nur connected sind,
 # sind sie tatsächlich eingeloggt haben sie einen Username
@@ -57,14 +57,33 @@ def get_lobby():
 
 
 def get_lobby_list(lobby):
-    lobbyString = ""
+    lobby_string = ""
     for client in connected_clients:
         if connected_clients[client]["lobby"] == lobby:
             print(connected_clients[client]["name"])
-            lobbyString += connected_clients[client]["name"] + ";"
-    return lobbyString[:-1]
+            lobby_string += connected_clients[client]["name"] + ";"
+    return lobby_string[:-1]
 
-
+def get_lobby_size(lobby):
+    lobby_size = 0
+    for client in connected_clients:
+        if connected_clients[client]["lobby"] == lobby:
+            print(connected_clients[client]["name"])
+            lobby_size += 1
+    return lobby_size
 def start_lobby(lobby):
     # TODO: Lobby starten
     return
+
+def leave_lobby(sid):
+    old_lobby = connected_clients[sid]["lobby"]
+    connected_clients[sid]["lobby"] = False
+    events.sio.leave_room(sid, old_lobby)
+    response_data = {'status': 'left', 'message': f"{get_lobby_list(old_lobby)}", 'lobby': old_lobby}
+    events.sio.emit('player_leave', response_data, room=old_lobby)
+
+def join_lobby(sid, new_lobby):
+    connected_clients[sid]["lobby"] = new_lobby
+    response_data = {'status': 'joined', 'message': f"{get_lobby_list(new_lobby)}", 'lobby': new_lobby}
+    events.sio.enter_room(sid, new_lobby)
+    events.sio.emit('player_joined', response_data, room=new_lobby)

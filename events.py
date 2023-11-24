@@ -18,14 +18,13 @@ def connect(sid, environ):
 # Verbindungsabbruch eines Clients
 @sio.event
 def disconnect(sid):
-    old_lobby = logic.connected_clients[sid]["lobby"]
-    logic.connected_clients[sid]["lobby"] = False
-
-    sio.leave_room(sid, old_lobby)
-    response_data = {'status': 'left', 'message': f"{logic.get_lobby_list(old_lobby)}", 'lobby': old_lobby}
-    sio.emit('player_leave', response_data, room=old_lobby)
+    logic.leave_lobby(sid)
     logic.connected_clients.pop(sid)
     print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
+
+@sio.event
+def leave_lobby(sid):
+    logic.leave_lobby(sid)
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
 @sio.event
@@ -118,13 +117,16 @@ def join_lobby(sid, data):
     new_lobby = data["lobby"]
 
     if new_lobby in logic.lobbies:
-        logic.connected_clients[sid]["lobby"] = new_lobby
-        response_data = {'status': 'joined', 'message': f"{logic.get_lobby_list(new_lobby)}", 'lobby': new_lobby}
-        sio.enter_room(sid, new_lobby)
-        sio.emit('player_joined', response_data, room=data["lobby"])
-
-        lobby_response = {'status': 'lobby', 'message': f"{new_lobby}"}
-
+        if logic.get_lobby_size(new_lobby) < 8:
+            logic.join_lobby(sid, new_lobby)
+        else:
+            response_data = {'status': 'failed', 'message': f"Lobby is full", 'lobby': new_lobby}
     print(logic.connected_clients)
     print(logic.users)
     print("sent ", response_data, " to ", sid)
+
+@sio.event
+def get_lobby(sid):
+    for lobby in logic.lobbies:
+        if logic.get_lobby_size(lobby) < 8:
+            logic.join_lobby(sid, lobby)
