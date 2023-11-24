@@ -121,6 +121,7 @@ def sent_message(sid, chat_message):
     name = logic.connected_clients[sid]["name"]
     lobby = logic.connected_clients[sid]["lobby"]
     sio.emit('new_message', name + ";" + chat_message, room=lobby)
+    print("LOBBY-", lobby, ": ", name, " sent message -> ", chat_message)
 
 
 @sio.event
