@@ -51,13 +51,13 @@ def login(sid, data):
 @sio.event
 def logout(sid, data):
     print("received logout request from ", sid)
-
     try:
         name = logic.connected_clients[sid]
 
         response_data = {'status': 'logout_success',
                          'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
         logic.connected_clients[sid][name] = False
+        logic.leave_lobby(sid)
         print(name + " wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
@@ -130,3 +130,6 @@ def get_lobby(sid):
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)
+            return
+
+    sio.emit("","No lobby available", room=sid)
