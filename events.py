@@ -58,7 +58,7 @@ def login(sid, data):
 
     if name in logic.users:
         if logic.users[name] == password:
-            logic.connected_clients[client].username = name
+            client.username = name
             response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
         else:
             response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
