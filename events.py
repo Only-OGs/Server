@@ -32,14 +32,7 @@ def disconnect(sid):
 
 @sio.event
 def leave_lobby(sid):
-    client = logic.get_client(sid)
-    lobby = logic.get_lobby(client.current_lobby)
-
-    if lobby.remove_client(client):
-        sio.leave_room(sid, lobby.id)
-        response_data = {'status': 'left', 'message': f"{lobby.get_players}", 'lobby': lobby.id}
-        print("sent ", response_data, " to ", sid)
-        sio.emit('player_leave', response_data, room=lobby.id)
+    logic.leave_lobby(sid)
 
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
@@ -141,16 +134,16 @@ def sent_message(sid, chat_message):
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
     response_data = "nothing"
-    new_lobby = data["lobby"]
+    new_lobby = logic.get_lobby_by_code(data["lobby"])
 
     if new_lobby in logic.lobbies:
         if logic.get_lobby_size(new_lobby) < 8:
             logic.join_lobby(sid, new_lobby)
         else:
-            response_data = {'status': 'failed', 'message': f"Lobby ist bereits voll", 'lobby': new_lobby}
+            response_data = {'status': 'failed', 'message': f"Lobby ist bereits voll", 'lobby': new_lobby.id}
             sio.emit("player_joined", response_data, room=sid)
     else:
-        response_data = {'status': 'failed', 'message': f"Lobby ist nicht bekannt", 'lobby': new_lobby}
+        response_data = {'status': 'failed', 'message': f"Lobby ist nicht bekannt", 'lobby': new_lobby.id}
         sio.emit("player_joined", response_data, room=sid)
     print(logic.connected_clients)
     print(logic.users)

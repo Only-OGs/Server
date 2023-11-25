@@ -63,16 +63,20 @@ def load_registered_users():
 
 def get_lobby_code():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-    lobbies.add(lobby)
     return lobby
+
 
 def get_lobby_size(lobby):
     lobby_size = 0
     for client in connected_clients:
-        if connected_clients[client]["lobby"] == lobby:
+        if client.current_lobby == lobby:
             lobby_size += 1
     return lobby_size
 
+def get_lobby_by_code(code):
+    for lobby in lobbies:
+        if lobby.id == code:
+            return lobby
 
 def start_lobby(lobby):
     # TODO: Lobby starten
@@ -90,16 +94,12 @@ def get_lobbies():
 
 def leave_lobby(sid):
     client = get_client(sid)
-    old_lobby = connected_clients[client].current_lobby
+    old_lobby = client.current_lobby
     old_lobby.remove_client(client)
     events.sio.leave_room(sid, old_lobby.id)
-    response_data = {'status': 'left', 'message': f"{old_lobby.get_players}", 'lobby': old_lobby.id}
+    response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
     print("sent ", response_data, " to ", sid)
-    events.sio.emit('player_leave', response_data, room=old_lobby)
-
-    if get_lobby_size(old_lobby) == 0:
-        print(old_lobby.id, " deleted, lobbies available: ", get_lobbies())
-        lobbies.remove(old_lobby)
+    events.sio.emit('player_leave', response_data, room=old_lobby.id)
 
 
 def get_lobby(code):
@@ -107,13 +107,14 @@ def get_lobby(code):
         if lobby.id == code:
             return lobby
 
+
 def join_lobby(sid, new_lobby):
     client = get_client(sid)
-    lobby = get_lobby(new_lobby)
+    lobby = new_lobby
     lobby.add_client(client)
-    response_data = {'status': 'joined', 'message': f"{lobby.get_players()}", 'lobby': new_lobby}
-    events.sio.enter_room(sid, new_lobby)
-    events.sio.emit('player_joined', response_data, room=new_lobby)
+    response_data = {'status': 'joined', 'message': f"{lobby.get_players()}", 'lobby': new_lobby.id}
+    events.sio.enter_room(sid, new_lobby.id)
+    events.sio.emit('player_joined', response_data, room=new_lobby.id)
     print("sent ", response_data, " to ", sid)
 
 

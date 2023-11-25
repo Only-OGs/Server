@@ -8,7 +8,7 @@ class Lobby:
         self.gameStarted = False
         self.connections = 0
 
-        logic.lobbies.add(self.id)
+        logic.lobbies.add(self)
 
     def __str__(self):
         return f"LobbyID: {self.id}, Users in Lobby: {self.clients}, Game has started: {self.gameStarted}"
@@ -32,6 +32,6 @@ class Lobby:
         player_string = ""
 
         for client in self.clients:
-            player_string += client.name + ";"
+            player_string += client.username + ";"
 
         return player_string[:-1]
