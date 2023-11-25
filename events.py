@@ -13,7 +13,7 @@ app = socketio.WSGIApp(sio)
 @sio.event
 def connect(sid, environ):
     client = Client.Client(sid)
-    logic.connected_clients.add(client)
+    logic.connected_clients.append(client)
     sio.emit('connection_success', sid, room=sid)
     print(f"Client connected: {sid}, Current Players: {logic.get_clients()}")
 
