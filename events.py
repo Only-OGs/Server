@@ -104,7 +104,7 @@ def create_lobby(sid):
 
     response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
 
-    sio.emit('lobby_created', response_data)
+    sio.emit('lobby_created', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
