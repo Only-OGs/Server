@@ -2,6 +2,7 @@ import socketio
 import eventlet
 import json
 import logic
+from Entities import Client as Client
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
@@ -10,22 +11,34 @@ app = socketio.WSGIApp(sio)
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
-    logic.connected_clients[sid] = {"name": False, "lobby": False}
+    client = Client.Client(sid)
+    logic.connected_clients.add(client)
     sio.emit('connection_success', sid, room=sid)
-    print(f"Client connected: {sid}, Current Players: {logic.connected_clients}")
+    print(f"Client connected: {sid}, Current Players: {logic.get_clients()}")
 
 
 # Verbindungsabbruch eines Clients
 @sio.event
 def disconnect(sid):
-    logic.leave_lobby(sid)
-    logic.connected_clients.pop(sid)
-    print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
+    client = logic.get_client(sid)
+    lobby = logic.get_lobby(client.current_lobby)
+
+    lobby.remove_client(client)
+    logic.connected_clients.remove(client)
+
+    print(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
 
 
 @sio.event
 def leave_lobby(sid):
-    logic.leave_lobby(sid)
+    client = logic.get_client(sid)
+    lobby = logic.get_lobby(client.current_lobby)
+
+    if lobby.remove_client(client):
+        sio.leave_room(sid, lobby.id)
+        response_data = {'status': 'left', 'message': f"{lobby.get_players}", 'lobby': lobby.id}
+        print("sent ", response_data, " to ", sid)
+        sio.emit('player_leave', response_data, room=lobby.id)
 
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
