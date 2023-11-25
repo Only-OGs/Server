@@ -59,11 +59,11 @@ def login(sid, data):
 def logout(sid):
     print("received logout request from ", sid)
     try:
-        name = logic.connected_clients[sid]
+        name = logic.connected_clients[sid]["name"]
 
         response_data = {'status': 'logout_success',
-                         'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
-        logic.connected_clients[sid][name] = False
+                         'message': f"{name} erfolgreich ausgeloggt"}
+        logic.connected_clients[sid]["name"] = False
         logic.leave_lobby(sid)
         print(name + " wurde ausgeloggt.")
     except Exception as e:
