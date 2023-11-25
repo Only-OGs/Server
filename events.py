@@ -3,6 +3,7 @@ import eventlet
 import json
 import logic
 from Entities import Client as Client
+from Entities import Lobby as Lobby
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
@@ -45,6 +46,7 @@ def leave_lobby(sid):
 @sio.event
 def login(sid, data):
     print("received ", data, " from ", sid)
+    client = logic.get_client(sid)
 
     name = data["user"]
     password = data["password"]
@@ -56,7 +58,7 @@ def login(sid, data):
 
     if name in logic.users:
         if logic.users[name] == password:
-            logic.connected_clients[sid]["name"] = name
+            logic.connected_clients[client].username = name
             response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
         else:
             response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
@@ -71,14 +73,16 @@ def login(sid, data):
 @sio.event
 def logout(sid):
     print("received logout request from ", sid)
+    client = logic.get_client(sid)
+
     try:
-        name = logic.connected_clients[sid]["name"]
+        name = client.username
 
         response_data = {'status': 'logout_success',
                          'message': f"{name} erfolgreich ausgeloggt"}
-        logic.connected_clients[sid]["name"] = False
+        client.username = False
         logic.leave_lobby(sid)
-        print(name + " wurde ausgeloggt.")
+        print(str(name) + " wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
 
@@ -92,7 +96,6 @@ def logout(sid):
 def register(sid, data):
     print("received ", data, " from ", sid)
     name = data["user"]
-    password = data["password"]
 
     if name in logic.users:
         response_data = {'status': 'register_failed', 'message': f"{name} ist bereits registriert"}
@@ -109,13 +112,14 @@ def register(sid, data):
 @sio.event
 def create_lobby(sid):
     print("received lobby request from ", sid)
+    client = logic.get_client(sid)
 
-    lobby = logic.get_lobby_code()
-    logic.connected_clients[sid]["lobby"] = lobby
+    lobby = Lobby.Lobby()
+    lobby.add_client(client)
 
-    sio.enter_room(sid, lobby)
+    sio.enter_room(sid, lobby.id)
 
-    response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
+    response_data = {'status': 'lobby_created', 'message': f"{lobby.id}"}
 
     sio.emit('lobby_created', response_data, room=sid)
 
@@ -124,8 +128,11 @@ def create_lobby(sid):
 
 @sio.event
 def sent_message(sid, chat_message):
-    name = logic.connected_clients[sid]["name"]
-    lobby = logic.connected_clients[sid]["lobby"]
+    client = logic.get_client(sid)
+
+    name = client.username
+    lobby = client.current_lobby
+
     sio.emit('new_message', name + ";" + chat_message, room=lobby)
     print("LOBBY -", lobby, ": ", name, " sent message -> ", chat_message)
 

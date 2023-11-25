@@ -8,6 +8,8 @@ class Lobby:
         self.gameStarted = False
         self.connections = 0
 
+        logic.lobbies.add(self.id)
+
     def __str__(self):
         return f"LobbyID: {self.id}, Users in Lobby: {self.clients}, Game has started: {self.gameStarted}"
 
@@ -22,7 +24,7 @@ class Lobby:
         self.connections -= 1
         if self.connections == 0:
             print(self.id, ' deleted')
-            del self
+            logic.lobbies.remove(self)
 
         return True
 
