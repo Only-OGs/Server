@@ -91,12 +91,12 @@ def logout(sid):
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
 
-    sio.emit('response', response_data, room=sid)
+    sio.emit('logout', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
 
-# Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
+# Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein, wird er, angelegt
 @sio.event
 def register(sid, data):
     print("received ", data, " from ", sid)
