@@ -115,6 +115,7 @@ def join_lobby(sid, new_lobby):
         'players': lobby.get_players()}
     events.sio.enter_room(sid, new_lobby.id)
     events.sio.emit('lobby_management', response_data, room=new_lobby.id)
+    events.sio.emit('search_lobby', response_data, room=sid)
     print("sent ", response_data, " to ", sid)
 
 

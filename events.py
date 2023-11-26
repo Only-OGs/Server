@@ -165,6 +165,7 @@ def join_lobby(sid, data):
             'lobby': data["lobby"],
             'players': ''}
         sio.emit("search_lobby", response_data, room=sid)
+
     print(logic.connected_clients)
     print(logic.users)
     print("sent ", response_data, " to ", sid)
