@@ -46,20 +46,30 @@ def login(sid, data):
     password = data["password"]
 
     if logic.is_already_on(name):
-        response_data = {'status': 'login_failed', 'message': "Benutzer bereits angemeldet"}
-        sio.emit('response', response_data, room=sid)
+        response_data = {
+            'status': 'login_failed',
+            'message': "Benutzer bereits angemeldet"}
+        sio.emit('login', response_data, room=sid)
         return
 
     if name in logic.users:
         if logic.users[name] == password:
             client.username = name
-            response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
+            response_data = {
+                'status': 'login_success',
+                'message': f"Login erfolgreich, willkommen {name}"
+            }
         else:
-            response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
+            response_data = {
+                'status': 'login_failed',
+                'message': "Kombination aus Username und Passwort nicht korrekt"
+            }
     else:
-        response_data = {'status': 'login_failed', 'message': f"{name} ist nicht registriert."}
+        response_data = {
+            'status': 'login_failed',
+            'message': f"Kombination aus Username und Passwort nicht korrekt"}
 
-    sio.emit('response', response_data, room=sid)
+    sio.emit('login', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
@@ -98,7 +108,7 @@ def register(sid, data):
         logic.write_user_to_file(data, sid)
         response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
 
-    sio.emit('response', response_data, room=sid)
+    sio.emit('register', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
