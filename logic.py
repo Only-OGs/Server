@@ -73,10 +73,12 @@ def get_lobby_size(lobby):
             lobby_size += 1
     return lobby_size
 
+
 def get_lobby_by_code(code):
     for lobby in lobbies:
         if lobby.id == code:
             return lobby
+
 
 def start_lobby(lobby):
     # TODO: Lobby starten
@@ -100,12 +102,6 @@ def leave_lobby(sid):
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
     print("sent ", response_data, " to ", sid)
     events.sio.emit('player_leave', response_data, room=old_lobby.id)
-
-
-def get_lobby(code):
-    for lobby in lobbies:
-        if lobby.id == code:
-            return lobby
 
 
 def join_lobby(sid, new_lobby):
