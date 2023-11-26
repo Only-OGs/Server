@@ -112,7 +112,11 @@ def join_lobby(sid, new_lobby):
     client = get_client(sid)
     lobby = new_lobby
     lobby.add_client(client)
-    response_data = {'status': 'joined', 'message': f"{lobby.get_players()}", 'lobby': new_lobby.id}
+    response_data = {
+        'status': 'failed',
+        'message': f"Lobby ist bereits voll",
+        'lobby': lobby.id,
+        'players': lobby.get_players()}
     events.sio.enter_room(sid, new_lobby.id)
     events.sio.emit('player_joined', response_data, room=new_lobby.id)
     print("sent ", response_data, " to ", sid)
