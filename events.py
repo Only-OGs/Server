@@ -22,9 +22,10 @@ def connect(sid, environ):
 @sio.event
 def disconnect(sid):
     client = logic.get_client(sid)
-    lobby = logic.get_lobby(client.current_lobby)
+    lobby = client.current_lobby
 
-    lobby.remove_client(client)
+    if lobby is not False:
+        lobby.remove_client(client)
     logic.connected_clients.remove(client)
 
     print(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
@@ -74,7 +75,8 @@ def logout(sid):
         response_data = {'status': 'logout_success',
                          'message': f"{name} erfolgreich ausgeloggt"}
         client.username = False
-        logic.leave_lobby(sid)
+        if client.current_lobby is not False:
+            logic.leave_lobby(sid)
         print(str(name) + " wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
@@ -126,8 +128,8 @@ def sent_message(sid, chat_message):
     name = client.username
     lobby = client.current_lobby
 
-    sio.emit('new_message', name + ";" + chat_message, room=lobby)
-    print("LOBBY -", lobby, ": ", name, " sent message -> ", chat_message)
+    sio.emit('new_message', name + ";" + chat_message, room=lobby.id)
+    print("LOBBY -", lobby.id, ": ", name, " sent message -> ", chat_message)
 
 
 @sio.event
@@ -143,7 +145,7 @@ def join_lobby(sid, data):
             response_data = {'status': 'failed', 'message': f"Lobby ist bereits voll", 'lobby': new_lobby.id}
             sio.emit("player_joined", response_data, room=sid)
     else:
-        response_data = {'status': 'failed', 'message': f"Lobby ist nicht bekannt", 'lobby': new_lobby.id}
+        response_data = {'status': 'failed', 'message': f"Lobby ist nicht bekannt", 'lobby': data["lobby"]}
         sio.emit("player_joined", response_data, room=sid)
     print(logic.connected_clients)
     print(logic.users)
