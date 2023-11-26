@@ -185,4 +185,4 @@ def get_lobby(sid):
         'players': ''
     }
 
-    sio.emit("player_joined", response_data, room=sid)
+    sio.emit("lobby_management", response_data, room=sid)
