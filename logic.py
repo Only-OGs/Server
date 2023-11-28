@@ -110,7 +110,7 @@ def join_lobby(sid, new_lobby):
     lobby.add_client(client)
     response_data = {
         'status': 'joined',
-        'message': f"Lobby {lobby.id} beigetreten",
+        'message': f"{client.username} ist Lobby {lobby.id} beigetreten",
         'lobby': lobby.id,
         'players': lobby.get_players()}
     events.sio.enter_room(sid, new_lobby.id)

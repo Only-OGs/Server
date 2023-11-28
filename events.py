@@ -151,6 +151,12 @@ def join_lobby(sid, data):
     if new_lobby in logic.lobbies:
         if logic.get_lobby_size(new_lobby) < 8:
             logic.join_lobby(sid, new_lobby)
+            response_data = {
+                'status': 'success',
+                'message': f"Lobby beigetreten",
+                'lobby': new_lobby.id,
+                'players': ''}
+            sio.emit("search_lobby", response_data, room=sid)
         else:
             response_data = {
                 'status': 'failed',
@@ -177,13 +183,15 @@ def get_lobby(sid):
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)
+            response_data = {
+                'status': 'success',
+                'message': 'Lobby gefunden'
+            }
+            sio.emit("get_lobby", response_data, room=sid)
             return
 
     response_data = {
         'status': 'failed',
-        'message': f"Keine Lobby gefunden",
-        'lobby': '',
-        'players': ''
+        'message': 'Keine Lobby gefunden'
     }
-
-    sio.emit("lobby_management", response_data, room=sid)
+    sio.emit("get_lobby", response_data, room=sid)
