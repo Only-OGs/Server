@@ -39,9 +39,13 @@ def leave_lobby(sid):
 def start_game(sid):
     client = logic.get_client(sid)
     lobby = logic.get_lobby_by_code(client.current_lobby)
+    print(f"received go request from {client.username}")
     if lobby.gameStarted is False:
         lobby.gameStarted = True
         sio.emit("game_start","go", room=lobby.id)
+        print(f"sent go to lobby: {lobby.id}")
+        return
+    print(f"did nothing because game has already started @ {client.username}")
 
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
