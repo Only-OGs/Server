@@ -38,7 +38,7 @@ def leave_lobby(sid):
 @sio.event
 def start_game(sid):
     client = logic.get_client(sid)
-    lobby = logic.get_lobby_by_code(client.current_lobby)
+    lobby = logic.get_lobby_by_code(client.current_lobby.id)
     print(f"received go request from {client.username}")
     if not lobby.gameStarted:
         lobby.gameStarted = True
