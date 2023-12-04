@@ -35,6 +35,14 @@ def disconnect(sid):
 def leave_lobby(sid):
     logic.leave_lobby(sid)
 
+@sio.event
+def start_game(sid):
+    client = logic.get_client(sid)
+    lobby = logic.get_lobby_by_code(client.current_lobby)
+    if lobby.gameStarted is False:
+        lobby.gameStarted = True
+        sio.emit("game_start","go", room=lobby.id)
+
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
 @sio.event
