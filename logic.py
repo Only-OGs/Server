@@ -138,6 +138,6 @@ def generate_track():
             'curve_strength': random.randint(-6, 6),
             'hill_height': random.randint(-60, 60)
         }
-        track.append(json.dumps(temp_dict))
+        track.append(temp_dict)
 
-    return json.dumps(track)
+    return track
