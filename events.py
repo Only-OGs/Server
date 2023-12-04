@@ -43,6 +43,7 @@ def start_game(sid):
     if not lobby.gameStarted:
         lobby.gameStarted = True
         sio.emit("game_start","go", room=lobby.id)
+        sio.emit("receive_track", logic.generate_track(), room=lobby.id)
         print(f"sent go to lobby: {lobby.id}")
         return
     print(f"did nothing because game has already started @ {client.username}")
