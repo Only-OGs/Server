@@ -4,7 +4,7 @@ import events
 
 # Clients die aktuell connected sind, Value ist True, wenn diese nur connected sind,
 # sind sie tatsächlich eingeloggt haben sie einen Username
-connected_clients = {}
+connected_clients = list()
 
 # User die aktuell registriert sind
 users = {}
@@ -14,6 +14,17 @@ file_path = "users.txt"
 
 # Set aus Lobbies
 lobbies = set()
+
+
+def get_clients():
+    for client in connected_clients:
+        print(client)
+
+
+def get_client(sid):
+    for client in connected_clients:
+        if client.sid == sid:
+            return client
 
 
 # User die registriert werden, werden in die users.txt geschrieben und anschließend zur
@@ -52,25 +63,21 @@ def load_registered_users():
 
 def get_lobby_code():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-    lobbies.add(lobby)
     return lobby
-
-
-def get_lobby_list(lobby):
-    lobby_string = ""
-    for client in connected_clients:
-        if connected_clients[client]["lobby"] == lobby:
-            if connected_clients[client]["name"] is not False:
-                lobby_string += connected_clients[client]["name"] + ";"
-    return lobby_string[:-1]
 
 
 def get_lobby_size(lobby):
     lobby_size = 0
     for client in connected_clients:
-        if connected_clients[client]["lobby"] == lobby:
+        if client.current_lobby == lobby:
             lobby_size += 1
     return lobby_size
+
+
+def get_lobby_by_code(code):
+    for lobby in lobbies:
+        if lobby.id == code:
+            return lobby
 
 
 def start_lobby(lobby):
@@ -78,29 +85,42 @@ def start_lobby(lobby):
     return
 
 
-def leave_lobby(sid):
-    old_lobby = connected_clients[sid]["lobby"]
-    connected_clients[sid]["lobby"] = False
-    events.sio.leave_room(sid, old_lobby)
-    response_data = {'status': 'left', 'message': f"{get_lobby_list(old_lobby)}", 'lobby': old_lobby}
-    print("sent ", response_data, " to ", sid)
-    events.sio.emit('player_leave', response_data, room=old_lobby)
+def get_lobbies():
+    lobby_string = ""
 
-    if get_lobby_size(old_lobby) == 0:
-        lobbies.remove(old_lobby)
-        print(old_lobby, " deleted, lobbies available: ", lobbies)
+    for lobby in lobbies:
+        lobby_string += lobby + ", "
+
+    return lobby_string[:-2]
+
+
+def leave_lobby(sid):
+    client = get_client(sid)
+    old_lobby = client.current_lobby
+    old_lobby.remove_client(client)
+    events.sio.leave_room(sid, old_lobby.id)
+    response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
+    print("sent ", response_data, " to ", sid)
+    events.sio.emit('player_leave', response_data, room=old_lobby.id)
 
 
 def join_lobby(sid, new_lobby):
-    connected_clients[sid]["lobby"] = new_lobby
-    response_data = {'status': 'joined', 'message': f"{get_lobby_list(new_lobby)}", 'lobby': new_lobby}
-    events.sio.enter_room(sid, new_lobby)
-    events.sio.emit('player_joined', response_data, room=new_lobby)
+    client = get_client(sid)
+    lobby = new_lobby
+    lobby.add_client(client)
+    response_data = {
+        'status': 'joined',
+        'message': f"{client.username} ist Lobby {lobby.id} beigetreten",
+        'lobby': lobby.id,
+        'players': lobby.get_players()}
+    events.sio.enter_room(sid, new_lobby.id)
+    events.sio.emit('lobby_management', response_data, room=new_lobby.id)
     print("sent ", response_data, " to ", sid)
+
 
 def is_already_on(name):
     for client in connected_clients:
-        if connected_clients[client]["name"] == name:
+        if client.username == name:
             return True
 
     return False

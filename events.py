@@ -2,6 +2,8 @@ import socketio
 import eventlet
 import json
 import logic
+from Entities import Client as Client
+from Entities import Lobby as Lobby
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
@@ -10,17 +12,23 @@ app = socketio.WSGIApp(sio)
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
-    logic.connected_clients[sid] = {"name": False, "lobby": False}
+    client = Client.Client(sid)
+    logic.connected_clients.append(client)
     sio.emit('connection_success', sid, room=sid)
-    print(f"Client connected: {sid}, Current Players: {logic.connected_clients}")
+    print(f"Client connected: {sid}, Current Players: {logic.get_clients()}")
 
 
 # Verbindungsabbruch eines Clients
 @sio.event
 def disconnect(sid):
-    logic.leave_lobby(sid)
-    logic.connected_clients.pop(sid)
-    print(f"Client disconnected: {sid}, Current Players: {logic.connected_clients}")
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+
+    if lobby is not False:
+        lobby.remove_client(client)
+    logic.connected_clients.remove(client)
+
+    print(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
 
 
 @sio.event
@@ -32,25 +40,36 @@ def leave_lobby(sid):
 @sio.event
 def login(sid, data):
     print("received ", data, " from ", sid)
+    client = logic.get_client(sid)
 
     name = data["user"]
     password = data["password"]
 
     if logic.is_already_on(name):
-        response_data = {'status': 'login_failed', 'message': "Benutzer bereits angemeldet"}
-        sio.emit('response', response_data, room=sid)
+        response_data = {
+            'status': 'login_failed',
+            'message': "Benutzer bereits angemeldet"}
+        sio.emit('login', response_data, room=sid)
         return
 
     if name in logic.users:
         if logic.users[name] == password:
-            logic.connected_clients[sid]["name"] = name
-            response_data = {'status': 'login_success', 'message': f"Login erfolgreich, willkommen {name}"}
+            client.username = name
+            response_data = {
+                'status': 'login_success',
+                'message': f"Login erfolgreich, willkommen {name}"
+            }
         else:
-            response_data = {'status': 'login_failed', 'message': "Passwort nicht korrekt"}
+            response_data = {
+                'status': 'login_failed',
+                'message': "Kombination aus Username und Passwort nicht korrekt"
+            }
     else:
-        response_data = {'status': 'login_failed', 'message': f"{name} ist nicht registriert."}
+        response_data = {
+            'status': 'login_failed',
+            'message': f"Kombination aus Username und Passwort nicht korrekt"}
 
-    sio.emit('response', response_data, room=sid)
+    sio.emit('login', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
@@ -58,28 +77,30 @@ def login(sid, data):
 @sio.event
 def logout(sid):
     print("received logout request from ", sid)
+    client = logic.get_client(sid)
+
     try:
-        name = logic.connected_clients[sid]
+        name = client.username
 
         response_data = {'status': 'logout_success',
-                         'message': f"{logic.connected_clients[sid]} erfolgreich ausgeloggt"}
-        logic.connected_clients[sid][name] = False
-        logic.leave_lobby(sid)
-        print(name + " wurde ausgeloggt.")
+                         'message': f"{name} erfolgreich ausgeloggt"}
+        client.username = False
+        if client.current_lobby is not False:
+            logic.leave_lobby(sid)
+        print(str(name) + " wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
 
-    sio.emit('response', response_data, room=sid)
+    sio.emit('logout', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
 
-# Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein wird er angelegt
+# Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein, wird er, angelegt
 @sio.event
 def register(sid, data):
     print("received ", data, " from ", sid)
     name = data["user"]
-    password = data["password"]
 
     if name in logic.users:
         response_data = {'status': 'register_failed', 'message': f"{name} ist bereits registriert"}
@@ -87,7 +108,7 @@ def register(sid, data):
         logic.write_user_to_file(data, sid)
         response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
 
-    sio.emit('response', response_data, room=sid)
+    sio.emit('register', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
@@ -96,42 +117,61 @@ def register(sid, data):
 @sio.event
 def create_lobby(sid):
     print("received lobby request from ", sid)
+    client = logic.get_client(sid)
 
-    lobby = logic.get_lobby_code()
-    logic.connected_clients[sid]["lobby"] = lobby
+    lobby = Lobby.Lobby()
+    lobby.add_client(client)
 
-    sio.enter_room(sid, lobby)
+    sio.enter_room(sid, lobby.id)
 
-    response_data = {'status': 'lobby_created', 'message': f"{lobby}"}
+    response_data = {'status': 'lobby_created', 'message': f"{lobby.id}"}
 
-    sio.emit('lobby_created', response_data)
+    sio.emit('lobby_created', response_data, room=sid)
 
     print("sent ", response_data, " to ", sid)
 
 
 @sio.event
 def sent_message(sid, chat_message):
-    name = logic.connected_clients[sid]["name"]
-    lobby = logic.connected_clients[sid]["lobby"]
-    sio.emit('new_message', name + ";" + chat_message, room=lobby)
-    print("LOBBY -", lobby, ": ", name, " sent message -> ", chat_message)
+    client = logic.get_client(sid)
+
+    name = client.username
+    lobby = client.current_lobby
+
+    sio.emit('new_message', name + ";" + chat_message, room=lobby.id)
+    print("LOBBY -", lobby.id, ": ", name, " sent message -> ", chat_message)
 
 
 @sio.event
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
     response_data = "nothing"
-    new_lobby = data["lobby"]
+    new_lobby = logic.get_lobby_by_code(data["lobby"])
 
     if new_lobby in logic.lobbies:
         if logic.get_lobby_size(new_lobby) < 8:
             logic.join_lobby(sid, new_lobby)
+            response_data = {
+                'status': 'success',
+                'message': f"Lobby beigetreten",
+                'lobby': new_lobby.id,
+                'players': ''}
+            sio.emit("search_lobby", response_data, room=sid)
         else:
-            response_data = {'status': 'failed', 'message': f"Lobby ist bereits voll", 'lobby': new_lobby}
-            sio.emit("player_joined", response_data, room=sid)
+            response_data = {
+                'status': 'failed',
+                'message': f"Lobby ist bereits voll",
+                'lobby': new_lobby.id,
+                'players': ''}
+            sio.emit("search_lobby", response_data, room=sid)
     else:
-        response_data = {'status': 'failed', 'message': f"Lobby ist nicht bekannt", 'lobby': new_lobby}
-        sio.emit("player_joined", response_data, room=sid)
+        response_data = {
+            'status': 'failed',
+            'message': f"Lobby existiert nicht",
+            'lobby': data["lobby"],
+            'players': ''}
+        sio.emit("search_lobby", response_data, room=sid)
+
     print(logic.connected_clients)
     print(logic.users)
     print("sent ", response_data, " to ", sid)
@@ -143,7 +183,15 @@ def get_lobby(sid):
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)
-            sio.emit("get_lobby", "True", room=sid)
+            response_data = {
+                'status': 'success',
+                'message': 'Lobby gefunden'
+            }
+            sio.emit("get_lobby", response_data, room=sid)
             return
 
-    sio.emit("get_lobby", "False", room=sid)
+    response_data = {
+        'status': 'failed',
+        'message': 'Keine Lobby gefunden'
+    }
+    sio.emit("get_lobby", response_data, room=sid)
