@@ -39,12 +39,15 @@ def leave_lobby(sid):
 def start_game(sid):
     client = logic.get_client(sid)
     lobby = logic.get_lobby_by_code(client.current_lobby.id)
+
     print(f"received go request from {client.username}")
     if not lobby.gameStarted:
+        track = logic.generate_track()
         lobby.gameStarted = True
         sio.emit("game_start","go", room=lobby.id)
-        sio.emit("receive_track", logic.generate_track(), room=lobby.id)
+        sio.emit("receive_track", track, room=lobby.id)
         print(f"sent go to lobby: {lobby.id}")
+        print(f"sent following track -> \n {track} \n to {client.username}")
         return
     print(f"did nothing because game has already started @ {client.username}")
 
