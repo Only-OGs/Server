@@ -78,7 +78,8 @@ class Lobby:
 
             if not self.check_all_ready():
                 events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
-
+                self.timer_started = False
+                return
             print(self.id, " counter is ", counter)
             time.sleep(1)
             counter -= 1
