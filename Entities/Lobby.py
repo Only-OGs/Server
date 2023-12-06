@@ -12,6 +12,7 @@ class Lobby:
         self.allReady = False
         self.connections = 0
         self.isReady = set()
+        self.timer_started = False
 
         logic.lobbies.add(self)
 
@@ -49,23 +50,19 @@ class Lobby:
     def is_ready(self, client):
         self.isReady.add(client)
         print(client.username, " in lobby ", self.id, " is ready")
-        print("call check all ready from is_ready")
         self.check_all_ready()
 
     def not_ready(self, client):
         self.isReady.remove(client)
         print(client.username, " in lobby ", self.id, " is not ready")
-        print("call check all ready from not_ready")
         self.check_all_ready()
 
     # Sind gleich viele Clients verbunden wie Ready beginnt der Timer zum Spielstart
     def check_all_ready(self):
-        print("being in check all ready")
         if len(self.clients) == len(self.isReady):
             self.allReady = True
 
-        if (self.allReady and len(self.clients) > 1) and not self.gameStarted:
-            print("Rufe init game start auf")
+        if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
 
         return self.allReady
@@ -87,12 +84,10 @@ class Lobby:
             counter -= 1
             events.sio.emit("timer_countdown", "", room=self.id)
 
+        self.gameStarted = True
         events.sio.emit("START_THE_FUCKING_GAME", "DO IT NOW", room=self.id)
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
         print("Initiate thread for timer")
-        time.sleep(1)
-        if not self.gameStarted:
-            self.gameStarted = True
-            threading.Thread(target=self._timer, daemon=False).start()
+        threading.Thread(target=self._timer, daemon=False).start()
