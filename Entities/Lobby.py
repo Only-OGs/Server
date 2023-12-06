@@ -28,11 +28,10 @@ class Lobby:
 
     def remove_client(self, client):
         client.current_lobby = False
-
         self.clients.remove(client)
 
         if client in self.isReady:
-            self.isReady.remove(client)
+            self.not_ready(client)
 
 
         self.connections -= 1
