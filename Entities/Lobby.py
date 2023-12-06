@@ -69,7 +69,7 @@ class Lobby:
     def check_all_ready(self):
         self.allReady = False
 
-        if len(self.clients) == len(self.isReady):
+        if len(self.clients) == len(self.isReady) and len(self.clients) > 1:
             self.allReady = True
 
         return self.allReady
@@ -83,7 +83,7 @@ class Lobby:
 
         while counter != 0:
 
-            if not self.check_all_ready() and len(self.clients) <= 1:
+            if not self.check_all_ready():
                 events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
                 self.timer_started = False
                 return
