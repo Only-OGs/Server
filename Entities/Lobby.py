@@ -89,4 +89,6 @@ class Lobby:
     def init_game_start(self):
         print("Initiate thread for timer")
         time.sleep(1)
-        threading.Thread(target=self._timer, daemon=False).start()
+        if not self.gameStarted:
+            self.gameStarted = True
+            threading.Thread(target=self._timer, daemon=False).start()
