@@ -65,6 +65,8 @@ class Lobby:
 
     # Sind gleich viele Clients verbunden wie Ready beginnt der Timer zum Spielstart
     def check_all_ready(self):
+        self.allReady = False
+
         if len(self.clients) == len(self.isReady):
             self.allReady = True
 
