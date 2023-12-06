@@ -98,4 +98,4 @@ class Lobby:
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
         print("Initiate thread for timer")
-        threading.Thread(target=self._timer, daemon=False).start()
+        threading.Thread(target=self._timer, daemon=True).start()
