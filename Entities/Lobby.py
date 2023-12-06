@@ -61,7 +61,7 @@ class Lobby:
         if len(self.clients) == len(self.isReady):
             self.allReady = True
 
-        if self.allReady:
+        if self.allReady and len(self.clients) > 1:
             self.init_game_start()
 
         return self.allReady
