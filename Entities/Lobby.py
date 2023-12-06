@@ -52,18 +52,21 @@ class Lobby:
         print(client.username, " in lobby ", self.id, " is ready")
         self.check_all_ready()
 
+        if (self.allReady and len(self.clients) > 1) and not self.timer_started:
+            self.init_game_start()
+
     def not_ready(self, client):
         self.isReady.remove(client)
         print(client.username, " in lobby ", self.id, " is not ready")
         self.check_all_ready()
 
+        if (self.allReady and len(self.clients) > 1) and not self.timer_started:
+            self.init_game_start()
+
     # Sind gleich viele Clients verbunden wie Ready beginnt der Timer zum Spielstart
     def check_all_ready(self):
         if len(self.clients) == len(self.isReady):
             self.allReady = True
-
-        if (self.allReady and len(self.clients) > 1) and not self.timer_started:
-            self.init_game_start()
 
         return self.allReady
 
@@ -76,10 +79,12 @@ class Lobby:
 
         while counter != 0:
 
-            if not self.check_all_ready():
+            if not self.check_all_ready() and len(self.clients):
                 events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
+                self.counter = 0
                 self.timer_started = False
                 return
+
             print(self.id, " counter is ", counter)
             time.sleep(1)
             counter -= 1
