@@ -31,6 +31,10 @@ class Lobby:
 
         self.clients.remove(client)
 
+        if client in self.isReady:
+            self.isReady.remove(client)
+
+
         self.connections -= 1
 
         # Zerstöre Lobby wenn leer
