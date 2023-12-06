@@ -1,12 +1,17 @@
 import logic
+import threading
+import time
+import events
 
 
 class Lobby:
     def __init__(self):
-        self.id = logic.get_lobby_code()
+        self.id = logic.generate_lobby_code()
         self.clients = set()
         self.gameStarted = False
+        self.allReady = False
         self.connections = 0
+        self.isReady = set()
 
         logic.lobbies.add(self)
 
@@ -20,14 +25,19 @@ class Lobby:
 
     def remove_client(self, client):
         client.current_lobby = False
+
         self.clients.remove(client)
+
         self.connections -= 1
+
+        # Zerstöre Lobby wenn leer
         if self.connections == 0:
             print(self.id, ' deleted')
             logic.lobbies.remove(self)
 
         return True
 
+    # Gebe String mit Namen der Spieler getrennt durch ; wieder
     def get_players(self):
         player_string = ""
 
@@ -35,3 +45,40 @@ class Lobby:
             player_string += client.username + ";"
 
         return player_string[:-1]
+
+    def is_ready(self, client):
+        self.isReady.add(client)
+        print(client.username, " in lobby ", self.id, " is ready")
+        self.check_all_ready()
+
+    def not_ready(self, client):
+        self.isReady.remove(client)
+        print(client.username, " in lobby ", self.id, " is ready")
+        self.check_all_ready()
+
+    # Sind gleich viele Clients verbunden wie Ready beginnt der Timer zum Spielstart
+    def check_all_ready(self):
+        self.allReady = len(self.clients) == len(self.isReady)
+        if self.check_all_ready():
+            self.init_game_start()
+        return self.allReady
+
+    # Timer, der Spiel startet und Restzeit an Clients übermittelt, bricht ab sollte jemand nicht mehr Ready sein
+    def _timer(self):
+        counter = 10
+
+        while counter != 0:
+
+            if not self.check_all_ready():
+                events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
+
+            print(self.id, " counter is ", counter)
+            time.sleep(1)
+            counter -= 1
+            events.sio.emit("timer_countdown", "", room=self.id)
+
+        events.sio.emit("START_THE_FUCKING_GAME", "DO IT NOW", room=self.id)
+
+    # Startet einen Thread in der die Timer Methode ausgeführt wird
+    def init_game_start(self):
+        threading.Thread(target=self._timer).start()

@@ -17,11 +17,13 @@ file_path = "users.txt"
 lobbies = set()
 
 
+# Gebe alle Clients in der Server Konsole aus
 def get_clients():
     for client in connected_clients:
-        print(client)
+        print("*", client, "*")
 
 
+# Kriege den Client Objekt zur passenden SID
 def get_client(sid):
     for client in connected_clients:
         if client.sid == sid:
@@ -62,49 +64,51 @@ def load_registered_users():
         return None
 
 
-def get_lobby_code():
+# Generiere Lobby Code
+def generate_lobby_code():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     return lobby
 
 
+# Kriege Anzahl der Spieler in Lobby
 def get_lobby_size(lobby):
     lobby_size = 0
+
     for client in connected_clients:
         if client.current_lobby == lobby:
             lobby_size += 1
+
     return lobby_size
 
 
+# Kriege Lobby Objekt durch Code
 def get_lobby_by_code(code):
     for lobby in lobbies:
         if lobby.id == code:
             return lobby
 
 
+# Lobby starten
 def start_lobby(lobby):
     # TODO: Lobby starten
     return
 
 
-def get_lobbies():
-    lobby_string = ""
-
-    for lobby in lobbies:
-        lobby_string += lobby + ", "
-
-    return lobby_string[:-2]
-
-
 def leave_lobby(sid):
     client = get_client(sid)
     old_lobby = client.current_lobby
+
     old_lobby.remove_client(client)
     events.sio.leave_room(sid, old_lobby.id)
+
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
+
     print("sent ", response_data, " to ", sid)
+
     events.sio.emit('player_leave', response_data, room=old_lobby.id)
 
 
+# Spieler einer Lobby hinzufügen, Hilfsmethode für einige Events
 def join_lobby(sid, new_lobby):
     client = get_client(sid)
     lobby = new_lobby
@@ -119,6 +123,7 @@ def join_lobby(sid, new_lobby):
     print("sent ", response_data, " to ", sid)
 
 
+# Prüft, ob Client bereits eingeloggt ist
 def is_already_on(name):
     for client in connected_clients:
         if client.username == name:
@@ -127,6 +132,7 @@ def is_already_on(name):
     return False
 
 
+# Generiert eine Strecke für das Rennen der Lobby
 def generate_track():
     print("generate new track...")
     segments = random.randint(40, 60)

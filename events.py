@@ -1,6 +1,4 @@
 import socketio
-import eventlet
-import json
 import logic
 from Entities import Client as Client
 from Entities import Lobby as Lobby
@@ -164,6 +162,22 @@ def sent_message(sid, chat_message):
 
 
 @sio.event
+def is_ready(sid):
+    print(sid, " is not ready")
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+    lobby.is_ready(client)
+
+
+@sio.event
+def not_ready(sid):
+    print(sid, " is not ready anymore")
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+    lobby.not_ready(client)
+
+
+@sio.event
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
     response_data = "nothing"
@@ -177,21 +191,20 @@ def join_lobby(sid, data):
                 'message': f"Lobby beigetreten",
                 'lobby': new_lobby.id,
                 'players': ''}
-            sio.emit("search_lobby", response_data, room=sid)
         else:
             response_data = {
                 'status': 'failed',
                 'message': f"Lobby ist bereits voll",
                 'lobby': new_lobby.id,
                 'players': ''}
-            sio.emit("search_lobby", response_data, room=sid)
     else:
         response_data = {
             'status': 'failed',
             'message': f"Lobby existiert nicht",
             'lobby': data["lobby"],
             'players': ''}
-        sio.emit("search_lobby", response_data, room=sid)
+
+    sio.emit("search_lobby", response_data, room=sid)
 
     print(logic.connected_clients)
     print(logic.users)
@@ -201,6 +214,12 @@ def join_lobby(sid, data):
 @sio.event
 def get_lobby(sid):
     print("received random lobby request from ", sid)
+
+    response_data = {
+        'status': 'failed',
+        'message': 'Keine Lobby gefunden'
+    }
+
     for lobby in logic.lobbies:
         if logic.get_lobby_size(lobby) < 8:
             logic.join_lobby(sid, lobby)
@@ -211,8 +230,4 @@ def get_lobby(sid):
             sio.emit("get_lobby", response_data, room=sid)
             return
 
-    response_data = {
-        'status': 'failed',
-        'message': 'Keine Lobby gefunden'
-    }
     sio.emit("get_lobby", response_data, room=sid)
