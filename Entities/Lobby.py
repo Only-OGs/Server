@@ -33,13 +33,14 @@ class Lobby:
         if client in self.isReady:
             self.not_ready(client)
 
-
         self.connections -= 1
 
         # Zerstöre Lobby wenn leer
         if self.connections == 0:
             print(self.id, ' deleted')
             logic.lobbies.remove(self)
+
+        self.check_all_ready()
 
         return True
 
