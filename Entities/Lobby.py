@@ -1,3 +1,5 @@
+import eventlet
+
 import logic
 import threading
 import time
@@ -81,14 +83,13 @@ class Lobby:
 
         while counter != 0:
 
-            if not self.check_all_ready() and len(self.clients):
+            if not self.check_all_ready() and len(self.clients) <= 1:
                 events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
-                self.counter = 0
                 self.timer_started = False
                 return
 
             print(self.id, " counter is ", counter)
-            time.sleep(1)
+            eventlet.sleep(1)
             counter -= 1
             events.sio.emit("timer_countdown", "", room=self.id)
 
@@ -98,4 +99,4 @@ class Lobby:
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
         print("Initiate thread for timer")
-        threading.Thread(target=self._timer, daemon=True).start()
+        eventlet.spawn(self._timer).start()
