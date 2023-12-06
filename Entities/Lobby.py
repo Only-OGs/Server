@@ -64,7 +64,7 @@ class Lobby:
         if len(self.clients) == len(self.isReady):
             self.allReady = True
 
-        if self.allReady and len(self.clients) > 1:
+        if (self.allReady and len(self.clients) > 1) and not self.gameStarted:
             print("Rufe init game start auf")
             self.init_game_start()
 
