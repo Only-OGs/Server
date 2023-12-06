@@ -53,7 +53,7 @@ class Lobby:
 
     def not_ready(self, client):
         self.isReady.remove(client)
-        print(client.username, " in lobby ", self.id, " is ready")
+        print(client.username, " in lobby ", self.id, " is not ready")
         self.check_all_ready()
 
     # Sind gleich viele Clients verbunden wie Ready beginnt der Timer zum Spielstart

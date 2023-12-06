@@ -164,7 +164,7 @@ def sent_message(sid, chat_message):
 
 @sio.event
 def is_ready(sid):
-    print(sid, " is not ready")
+    print(sid, " wants to be ready")
     client = logic.get_client(sid)
     lobby = client.current_lobby
     lobby.is_ready(client)
@@ -172,7 +172,7 @@ def is_ready(sid):
 
 @sio.event
 def not_ready(sid):
-    print(sid, " is not ready anymore")
+    print(sid, " wants to be not ready anymore")
     client = logic.get_client(sid)
     lobby = client.current_lobby
     lobby.not_ready(client)
