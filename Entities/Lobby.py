@@ -81,7 +81,7 @@ class Lobby:
                 events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
 
             print(self.id, " counter is ", counter)
-            time.sleep(100)
+            time.sleep(1)
             counter -= 1
             events.sio.emit("timer_countdown", "", room=self.id)
 
