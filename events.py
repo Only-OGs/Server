@@ -24,7 +24,7 @@ def disconnect(sid):
     lobby = client.current_lobby
 
     if lobby is not False:
-        lobby.remove_client(client)
+        logic.leave_lobby(sid)
     logic.connected_clients.remove(client)
 
     print(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
