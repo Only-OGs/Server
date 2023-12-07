@@ -42,6 +42,14 @@ class Lobby:
 
         self.check_all_ready()
 
+        response_data = {
+            'status': 'joined',
+            'message': f"{client.username} hat Lobby {self.id} verlassen.",
+            'lobby': self.id,
+            'players': self.get_players()}
+
+        events.sio.emit('lobby_management', response_data, room=self.id)
+
         return True
 
     # Gebe String mit Namen der Spieler getrennt durch ; wieder
@@ -83,7 +91,6 @@ class Lobby:
         counter = 10
 
         print("Start counting the timer")
-        time.sleep(1)
 
         while counter != 0:
 

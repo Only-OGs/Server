@@ -202,7 +202,7 @@ def join_lobby(sid, data):
         response_data = {
             'status': 'failed',
             'message': f"Lobby existiert nicht",
-            'lobby': data["lobby"],
+            'lobby': new_lobby.id,
             'players': ''}
 
     sio.emit("search_lobby", response_data, room=sid)
