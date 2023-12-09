@@ -91,6 +91,7 @@ class Lobby:
         counter = 10
 
         print("Start counting the timer")
+        self.timer_started = True
 
         while counter != 0:
 
