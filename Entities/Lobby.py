@@ -96,14 +96,16 @@ class Lobby:
 
         while counter != 0 and self.timer_started:
 
-            if not self.check_all_ready():
+            if not self.allReady:
                 events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
+                print("timer_abrupt sent to ", self.id)
                 self.timer_started = False
                 return
 
             print(self.id, " counter is ", counter)
             eventlet.sleep(1)
             events.sio.emit("timer_countdown", counter, room=self.id)
+            print("sent countdown ",counter, " to ", self.id)
             counter -= 1
 
         if self.timer_started:
