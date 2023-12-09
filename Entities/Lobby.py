@@ -93,7 +93,6 @@ class Lobby:
         counter = 10
 
         print("Start counting the timer")
-        self.timer_started = True
 
         while counter != 0:
 
@@ -112,5 +111,6 @@ class Lobby:
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
+        self.timer_started = True
         print("Initiate thread for timer")
         eventlet.spawn(self._timer)
