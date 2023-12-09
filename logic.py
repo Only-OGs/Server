@@ -98,8 +98,9 @@ def leave_lobby(sid):
     client = get_client(sid)
     old_lobby = client.current_lobby
 
-    old_lobby.remove_client(client)
     events.sio.leave_room(sid, old_lobby.id)
+    old_lobby.remove_client(client)
+
 
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
 
@@ -128,7 +129,6 @@ def is_already_on(name):
     for client in connected_clients:
         if client.username == name:
             return True
-
     return False
 
 
