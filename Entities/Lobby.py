@@ -108,7 +108,7 @@ class Lobby:
             counter -= 1
 
         self.gameStarted = True
-        events.sio.emit("load_level", "Load level", room=self.id)
+        events.sio.emit("load_level", logic.generate_track(), room=self.id)
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
