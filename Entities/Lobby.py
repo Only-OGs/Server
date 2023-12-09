@@ -74,7 +74,7 @@ class Lobby:
         self.isReady.remove(client)
         print(client.username, " in lobby ", self.id, " is not ready")
         self.check_all_ready()
-        events.sio.emit("timer_abrupt", "", room=client.sid)
+
 
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
