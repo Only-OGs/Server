@@ -75,7 +75,6 @@ class Lobby:
         print(client.username, " in lobby ", self.id, " is not ready")
         self.check_all_ready()
 
-
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
 
@@ -94,7 +93,7 @@ class Lobby:
 
         print("Start counting the timer")
 
-        while counter != 0 and self.timer_started:
+        while counter != -2 and self.timer_started:
 
             if not self.allReady:
                 events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
@@ -105,7 +104,7 @@ class Lobby:
             print(self.id, " counter is ", counter)
             eventlet.sleep(1)
             events.sio.emit("timer_countdown", counter, room=self.id)
-            print("sent countdown ",counter, " to ", self.id)
+            print("sent countdown ", counter, " to ", self.id)
             counter -= 1
 
         if self.timer_started:
