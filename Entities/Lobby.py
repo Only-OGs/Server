@@ -49,7 +49,6 @@ class Lobby:
             'players': self.get_players()}
 
         events.sio.emit('lobby_management', response_data, room=self.id)
-        events.sio.leave_room()
 
         return True
 
