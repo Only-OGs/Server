@@ -74,6 +74,7 @@ class Lobby:
         self.isReady.remove(client)
         print(client.username, " in lobby ", self.id, " is not ready")
         self.check_all_ready()
+        events.sio.emit("timer_abrupt", "", room=client.sid)
 
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
@@ -103,8 +104,8 @@ class Lobby:
 
             print(self.id, " counter is ", counter)
             eventlet.sleep(1)
-            counter -= 1
             events.sio.emit("timer_countdown", counter, room=self.id)
+            counter -= 1
 
         self.gameStarted = True
         events.sio.emit("load_level", "Load level", room=self.id)
