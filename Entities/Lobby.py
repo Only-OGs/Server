@@ -50,9 +50,6 @@ class Lobby:
 
         events.sio.emit('lobby_management', response_data, room=self.id)
 
-        if self.check_all_ready() and not self.timer_started:
-            self.init_game_start()
-
         return True
 
     # Gebe String mit Namen der Spieler getrennt durch ; wieder
