@@ -40,7 +40,8 @@ class Lobby:
             print(self.id, ' deleted')
             logic.lobbies.remove(self)
 
-        self.check_all_ready()
+        if self.check_all_ready():
+            self.init_game_start()
 
         response_data = {
             'status': 'joined',
@@ -96,17 +97,17 @@ class Lobby:
         while counter != 0:
 
             if not self.check_all_ready():
-                events.sio.emit("timer_abrupt", "ITS OVER", room=self.id)
+                events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
                 self.timer_started = False
                 return
 
             print(self.id, " counter is ", counter)
             eventlet.sleep(1)
             counter -= 1
-            events.sio.emit("timer_countdown", "", room=self.id)
+            events.sio.emit("timer_countdown", counter, room=self.id)
 
         self.gameStarted = True
-        events.sio.emit("START_THE_FUCKING_GAME", "DO IT NOW", room=self.id)
+        events.sio.emit("load_level", "Load level", room=self.id)
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
