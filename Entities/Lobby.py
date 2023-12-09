@@ -31,7 +31,7 @@ class Lobby:
         self.clients.remove(client)
 
         if client in self.isReady:
-            self.not_ready(client)
+            self.isReady.remove(client)
 
         self.connections -= 1
 
@@ -94,7 +94,6 @@ class Lobby:
         print("Start counting the timer")
 
         while counter != -2 and self.timer_started:
-
             if not self.allReady:
                 events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
                 print("timer_abrupt sent to ", self.id)
