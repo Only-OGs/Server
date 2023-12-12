@@ -98,7 +98,7 @@ class Lobby:
         print("Start counting the timer")
         self.timer_started = True
 
-        while counter != -2:
+        while counter != -2 and self.timer_started:
             if not self.check_all_ready() and self.connections > 1:
                 events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
                 print("timer_abrupt sent to ", self.id)
