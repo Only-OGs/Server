@@ -15,7 +15,7 @@ class Lobby:
         self.connections = 0
         self.isReady = set()
         self.timer_started = False
-        self.start_positions = [
+        self.positions = [
             {"offset": -0.66, "pos": 0, "id": None},
             {"offset": 0, "pos": 0, "id": None},
             {"offset": 0.66, "pos": 0, "id": None},
@@ -28,7 +28,7 @@ class Lobby:
         logic.lobbies.add(self)
 
     def __str__(self):
-        return f"LobbyID: {self.id}, Users in Lobby: {self.clients}, Game has started: {self.gameStarted}"
+        return f"LobbyID: {self.id}, Users in Lobby: {self.get_players()}, Game has started: {self.gameStarted}"
 
     def get_ready_string(self):
         ready_string = ""
@@ -139,10 +139,10 @@ class Lobby:
             eventlet.spawn(self._timer)
 
     def place_client_on_position(self, client):
-        for position in self.start_positions:
+        for position in self.positions:
             if position["id"] is None:
                 position["id"] = client.username
                 break
 
-        events.sio.emit("wait_for_start", self.start_positions, room=self.id)
-        print("sent :", self.start_positions, " -> ", client.username, " and everyone in his lobby")
+        events.sio.emit("wait_for_start", self.positions, room=self.id)
+        print("sent :", self.positions, " -> ", client.username, " and everyone in his lobby")
