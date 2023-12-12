@@ -169,6 +169,16 @@ def is_ready(sid):
     lobby = client.current_lobby
     lobby.is_ready(client)
 
+    response_data = {
+        'status': 'joined',
+        'message': f"{client.username} ist Lobby {lobby.id} beigetreten",
+        'lobby': lobby.id,
+        'players': lobby.get_players(),
+        'ready': lobby.get_ready_string()
+    }
+
+    sio.emit('lobby_management', response_data, room=lobby.id)
+
 
 @sio.event
 def not_ready(sid):
@@ -176,6 +186,16 @@ def not_ready(sid):
     client = logic.get_client(sid)
     lobby = client.current_lobby
     lobby.not_ready(client)
+
+    response_data = {
+        'status': 'joined',
+        'message': f"{client.username} ist Lobby {lobby.id} beigetreten",
+        'lobby': lobby.id,
+        'players': lobby.get_players(),
+        'ready': lobby.get_ready_string()
+    }
+
+    sio.emit('lobby_management', response_data, room=lobby.id)
 
 
 @sio.event

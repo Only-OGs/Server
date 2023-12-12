@@ -15,11 +15,18 @@ class Lobby:
         self.connections = 0
         self.isReady = set()
         self.timer_started = False
-
         logic.lobbies.add(self)
 
     def __str__(self):
         return f"LobbyID: {self.id}, Users in Lobby: {self.clients}, Game has started: {self.gameStarted}"
+
+    def get_ready_string(self):
+        ready_string = ""
+
+        for client in self.isReady:
+            ready_string += client.username + ";"
+
+        return ready_string[:-1]
 
     def add_client(self, client):
         client.current_lobby = self
@@ -104,8 +111,6 @@ class Lobby:
                 print("timer_abrupt sent to ", self.id)
                 self.timer_started = False
                 return
-
-
 
             print(self.id, " counter is ", counter)
             eventlet.sleep(1)
