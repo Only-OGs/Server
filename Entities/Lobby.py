@@ -43,6 +43,15 @@ class Lobby:
         self.clients.add(client)
         self.connections += 1
 
+        response_data = {
+            'status': 'joined',
+            'message': f"{client.username} hat Lobby {self.id} betreten.",
+            'lobby': self.id,
+            'players': self.get_players(),
+            'ready': self.get_ready_string()}
+
+        events.sio.emit('lobby_management', response_data, room=client.sid)
+
     def update_pos(self, client, pos, offset):
         for record in self.positions:
             if record["id"] == client.username:
