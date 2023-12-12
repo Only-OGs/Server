@@ -77,7 +77,8 @@ class Lobby:
             'status': 'joined',
             'message': f"{client.username} hat Lobby {self.id} verlassen.",
             'lobby': self.id,
-            'players': self.get_players()}
+            'players': self.get_players(),
+            'ready': self.get_ready_string()}
 
         events.sio.emit('lobby_management', response_data, room=self.id)
 
@@ -96,7 +97,6 @@ class Lobby:
         self.isReady.add(client)
         print(client.username, " in lobby ", self.id, " is ready")
         self.check_all_ready()
-
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
 
