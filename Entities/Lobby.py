@@ -142,6 +142,7 @@ class Lobby:
         for position in self.start_positions:
             if position["id"] is None:
                 position["id"] = client.username
+                break
 
         events.sio.emit("wait_for_start", self.start_positions, room=self.id)
         print("sent :", self.start_positions, " -> ", client.username, " and everyone in his lobby")
