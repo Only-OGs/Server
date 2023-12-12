@@ -16,15 +16,15 @@ class Lobby:
         self.isReady = set()
         self.timer_started = False
         self.start_positions = [
-                {"offset": -0.66, "pos": 0, "id": None},
-                {"offset": 0, "pos": 0, "id": None},
-                {"offset": 0.66, "pos": 0, "id": None},
-                {"offset": -0.66, "pos": 400, "id": None},
-                {"offset": 0, "pos": 400, "id": None},
-                {"offset": 0.66, "pos": 400, "id": None},
-                {"offset": -0.66, "pos": 800, "id": None},
-                {"offset": 0, "pos": 800, "id": None}
-                ]
+            {"offset": -0.66, "pos": 0, "id": None},
+            {"offset": 0, "pos": 0, "id": None},
+            {"offset": 0.66, "pos": 0, "id": None},
+            {"offset": -0.66, "pos": 400, "id": None},
+            {"offset": 0, "pos": 400, "id": None},
+            {"offset": 0.66, "pos": 400, "id": None},
+            {"offset": -0.66, "pos": 800, "id": None},
+            {"offset": 0, "pos": 800, "id": None}
+        ]
         logic.lobbies.add(self)
 
     def __str__(self):
@@ -144,3 +144,4 @@ class Lobby:
                 position["id"] = client.username
 
         events.sio.emit("wait_for_start", self.start_positions, room=self.id)
+        print("sent :", self.start_positions, " -> ", client.username, " and everyone in his lobby")
