@@ -222,7 +222,7 @@ def get_lobby(sid):
     }
 
     for lobby in logic.lobbies:
-        if logic.get_lobby_size(lobby) < 8:
+        if logic.get_lobby_size(lobby) < 8 and not lobby.gameStarted:
             logic.join_lobby(sid, lobby)
             response_data = {
                 'status': 'success',
