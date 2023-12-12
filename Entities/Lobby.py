@@ -87,6 +87,10 @@ class Lobby:
 
         return self.allReady
 
+    def _timer_delay_set(self):
+        eventlet.sleep(3)
+        self.timer_started = False
+
     # Timer, der Spiel startet und Restzeit an Clients übermittelt, bricht ab sollte jemand nicht mehr Ready sein
     def _timer(self):
         counter = 10
@@ -96,10 +100,11 @@ class Lobby:
 
         while counter != -2:
             if not self.check_all_ready():
-                events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
-                print("timer_abrupt sent to ", self.id)
-                if self.connections <= 1 and not self.check_all_ready():
-                    self.timer_started = False
+
+                if self.connections <= 1:
+                    events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
+                    print("timer_abrupt sent to ", self.id)
+                    eventlet.spawn(self._timer_delay_set())
                 return
 
             print(self.id, " counter is ", counter)
