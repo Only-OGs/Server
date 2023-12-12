@@ -94,10 +94,11 @@ class Lobby:
         print("Start counting the timer")
 
         while counter != -2 and self.timer_started:
-            if not self.allReady:
+            if not self.check_all_ready():
                 events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
                 print("timer_abrupt sent to ", self.id)
-                self.timer_started = False
+                if self.connections <= 1 and not self.check_all_ready():
+                    self.timer_started = False
                 return
 
             print(self.id, " counter is ", counter)
@@ -112,6 +113,6 @@ class Lobby:
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
-        self.timer_started = True
-        print("Initiate thread for timer")
-        eventlet.spawn(self._timer)
+        if not self.timer_started:
+            print("Initiate thread for timer")
+            eventlet.spawn(self._timer)
