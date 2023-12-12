@@ -243,8 +243,8 @@ def client_is_ingame(sid):
 def ingame_pos(sid, data):
     pos = data["pos"]
     offset = data["offset"]
-    id = data["id"]
     client = logic.get_client(sid)
+    id = client.username
     lobby = client.current_lobby
     lobby.update_pos(client, pos, offset)
 
