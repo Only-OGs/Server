@@ -139,7 +139,8 @@ def is_already_on(name):
 # Generiert eine Strecke für das Rennen der Lobby
 def generate_track():
     print("generate new track...")
-    segments = random.randint(40, 60)
+    # segments = random.randint(40, 60)
+    segments = 3
     track = []
 
     for i in range(0, segments):
