@@ -233,6 +233,22 @@ def join_lobby(sid, data):
 
 
 @sio.event
+def client_is_ingame(sid):
+    print(sid, " is ingame")
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+    lobby.place_client_on_position(client)
+
+@sio.event
+def ingame_pos(sid, data):
+    pos = data["pos"]
+    offset = data["offset"]
+    client = logic.get_client(sid)
+    id = client.username
+    lobby = client.current_lobby
+    lobby.update_pos(client, pos, offset)
+
+@sio.event
 def get_lobby(sid):
     print("received random lobby request from ", sid)
 
