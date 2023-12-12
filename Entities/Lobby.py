@@ -43,6 +43,15 @@ class Lobby:
         self.clients.add(client)
         self.connections += 1
 
+    def update_pos(self, client, pos, offset):
+        for record in self.positions:
+            if record["id"] == client.username:
+                record["pos"] = pos
+                record["offset"] = offset
+                break
+
+        events.sio.emit("updated_positions", self.positions, room=self.id)
+
     def remove_client(self, client):
         client.current_lobby = False
         self.clients.remove(client)

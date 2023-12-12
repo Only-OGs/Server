@@ -239,7 +239,14 @@ def client_is_ingame(sid):
     lobby = client.current_lobby
     lobby.place_client_on_position(client)
 
-
+@sio.event
+def ingame_pos(sid, data):
+    pos = data["pos"]
+    offset = data["offset"]
+    id = data["id"]
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+    lobby.update_pos(client, pos, offset)
 
 @sio.event
 def get_lobby(sid):
