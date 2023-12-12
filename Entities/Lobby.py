@@ -99,7 +99,10 @@ class Lobby:
         player_string = ""
 
         for client in self.clients:
-            player_string += client.username + ";"
+            status = ""
+            if client in self.isReady:
+                status = " ist bereit!"
+            player_string += client.username + status + ";"
 
         return player_string[:-1]
 
