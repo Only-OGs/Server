@@ -243,7 +243,7 @@ def client_is_ingame(sid):
 
 @sio.event
 def get_lobby(sid):
-    print("received random lobby request from ", śsid)
+    print("received random lobby request from ", sid)
 
     response_data = {
         'status': 'failed',
