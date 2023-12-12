@@ -239,7 +239,7 @@ def client_is_ingame(sid, data):
 
 
 @sio.event
-def get_lobby(sid, data):
+def get_lobby(sid):
     print("received random lobby request from ", sid)
 
     response_data = {
