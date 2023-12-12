@@ -15,6 +15,16 @@ class Lobby:
         self.connections = 0
         self.isReady = set()
         self.timer_started = False
+        self.start_positions = [
+                {"offset": -0.66, "pos": 0, "id": None},
+                {"offset": 0, "pos": 0, "id": None},
+                {"offset": 0.66, "pos": 0, "id": None},
+                {"offset": -0.66, "pos": 400, "id": None},
+                {"offset": 0, "pos": 400, "id": None},
+                {"offset": 0.66, "pos": 400, "id": None},
+                {"offset": -0.66, "pos": 800, "id": None},
+                {"offset": 0, "pos": 800, "id": None}
+                ]
         logic.lobbies.add(self)
 
     def __str__(self):
@@ -127,3 +137,10 @@ class Lobby:
         if not self.timer_started:
             print("Initiate thread for timer")
             eventlet.spawn(self._timer)
+
+    def place_client_on_position(self, client):
+        for position in self.start_positions:
+            if position["id"] is None:
+                position["id"] = client.username
+
+        events.sio.emit("wait_for_start", self.start_positions, room=self.id)
