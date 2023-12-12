@@ -233,7 +233,7 @@ def join_lobby(sid, data):
 
 
 @sio.event
-def client_is_ingame(sid, data):
+def client_is_ingame(sid):
     print(sid, " is ingame")
     return
 
