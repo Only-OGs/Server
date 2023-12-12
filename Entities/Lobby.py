@@ -51,6 +51,7 @@ class Lobby:
             'ready': self.get_ready_string()}
 
         events.sio.emit('lobby_management', response_data, room=client.sid)
+        print("sent -> ", response_data, " to ", client.username)
 
     def update_pos(self, client, pos, offset):
         for record in self.positions:
