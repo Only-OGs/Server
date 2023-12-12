@@ -91,7 +91,7 @@ class Lobby:
             'ready': self.get_ready_string()}
 
         events.sio.emit('lobby_management', response_data, room=self.id)
-
+        print("sent -> ", response_data, " to ", client.username)
         return True
 
     # Gebe String mit Namen der Spieler getrennt durch ; wieder
