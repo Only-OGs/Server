@@ -61,6 +61,10 @@ class Lobby:
 
         self.connections -= 1
 
+        for entry in self.positions:
+            if entry["id"] == client.username:
+                entry["id"] = None
+
         # Zerstöre Lobby wenn leer
         if self.connections == 0:
             print(self.id, ' deleted')
