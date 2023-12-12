@@ -99,13 +99,10 @@ class Lobby:
         self.timer_started = True
 
         while counter != -2:
-            if not self.check_all_ready():
-
-                if self.connections <= 1:
-                    events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
-                    print("timer_abrupt sent to ", self.id)
-                    eventlet.spawn(self._timer_delay_set())
-                return
+            if not self.check_all_ready() and self.connections > 1:
+                events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
+                print("timer_abrupt sent to ", self.id)
+                self.timer_started = False
 
             print(self.id, " counter is ", counter)
             eventlet.sleep(1)
