@@ -24,7 +24,7 @@ class Database:
     def check_credentials(self, username, passw):
         password = hashlib.sha256(passw.encode()).hexdigest()
         try:
-            self.cr.execute(f'SELECT * FROM user WHERE name = ?', (username,password,))
+            self.cr.execute(f'SELECT * FROM user WHERE name = ? AND password = ?', (username,password,))
             self.conn.commit()
         except sqlite3.Error as e:
             print("SQLite-Fehler:", e)
