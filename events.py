@@ -9,7 +9,7 @@ from sqlite.database import Database
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
-db = main.db
+db = Database("og_racer.db")
 
 # Verbindung eines neuen Clients
 @sio.event
