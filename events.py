@@ -1,13 +1,15 @@
 import socketio
 import logic
 import eventlet
+
+import main
 from Entities import Client as Client
 from Entities import Lobby as Lobby
 from sqlite.database import Database
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
-db = Database("og_racer.db")
+db = main.db
 
 # Verbindung eines neuen Clients
 @sio.event
