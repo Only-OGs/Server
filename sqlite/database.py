@@ -57,7 +57,7 @@ class Database:
 
     def initialize_db(self):
         self.cr.execute('''
-            CREATE TABLE user (
+            CREATE TABLE user IF NOT EXISTS(
             [user_id] INTEGER PRIMARY KEY, 
             [name] TEXT UNIQUE, 
             [password] TEXT,
