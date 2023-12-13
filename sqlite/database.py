@@ -73,9 +73,3 @@ class Database:
             self.add_user(user, logic.users[user])
         return
 
-
-if __name__ == '__main__':
-    db = Database("og_racer.db")
-    db.add_user("test1111", "test")
-    print(db.user_exist("test"))
-    db.conn.close()
