@@ -29,24 +29,6 @@ def get_client(sid):
         if client.sid == sid:
             return client
 
-
-# User die registriert werden, werden in die users.txt geschrieben und anschließend zur
-# Laufzeit in das User dict aufgenommen
-def write_user_to_file(data, sid):
-    name = data["user"]
-    password = data["password"]
-
-    try:
-        with open(file_path, 'a') as file:
-            file.write(f"{name} {password}\n")
-
-        print(f"Die Benutzerdaten wurden erfolgreich in die Datei {file_path} geschrieben.")
-        users[name] = password
-
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
-
-
 # Lädt registrierte User aus users.txt in das User dict
 def load_registered_users():
     try:
