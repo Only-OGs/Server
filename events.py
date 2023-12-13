@@ -3,10 +3,11 @@ import logic
 import eventlet
 from Entities import Client as Client
 from Entities import Lobby as Lobby
+from sqlite.database import Database
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
-
+db = Database("og_racer.db")
 
 # Verbindung eines neuen Clients
 @sio.event
@@ -72,8 +73,8 @@ def login(sid, data):
         sio.emit('login', response_data, room=sid)
         return
 
-    if name in logic.users:
-        if logic.users[name] == password:
+    if db.user_exist(name):
+        if db.check_credentials(name, password):
             client.username = name
             response_data = {
                 'status': 'login_success',
@@ -121,11 +122,12 @@ def logout(sid):
 def register(sid, data):
     print("received ", data, " from ", sid)
     name = data["user"]
+    password = data["password"]
 
-    if name in logic.users:
+    if db.user_exist(name):
         response_data = {'status': 'register_failed', 'message': f"{name} ist bereits registriert"}
     else:
-        logic.write_user_to_file(data, sid)
+        db.add_user(name,password)
         response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
 
     sio.emit('register', response_data, room=sid)
