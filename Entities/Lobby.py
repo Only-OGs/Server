@@ -170,16 +170,19 @@ class Lobby:
             eventlet.spawn(self._timer)
 
     def _ai_racer(self):
+        print("AI RACING STARTS - THREADED")
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
             for client in self.positions:
                 if client.get("id") is None:
                     client["pos"] = client.get("pos") + 20
-                    events.sio.emit("updated_positions", self.positions, room=self.id)
+            events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
+        print("Start Race, self.raceStart is ", self.raceStarted)
         events.sio.emit("start_race", None, room=self.id)
         self.raceStarted = True
+        print("self.raceStart now is ", self.raceStarted)
         eventlet.spawn(self._ai_racer())
         return
 
