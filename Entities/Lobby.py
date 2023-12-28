@@ -9,11 +9,13 @@ import events
 class Lobby:
     def __init__(self):
         self.id = logic.generate_lobby_code()
+        self.max_players = 0
         self.clients = set()
         self.gameStarted = False
         self.allReady = False
         self.connections = 0
         self.isReady = set()
+        self.isIngame = set()
         self.timer_started = False
         self.positions = [
             {"offset": -0.66, "pos": 0, "id": None},
@@ -156,6 +158,7 @@ class Lobby:
 
         if self.timer_started:
             self.gameStarted = True
+            self.max_players = len(self.clients)
             events.sio.emit("load_level", logic.generate_track(), room=self.id)
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
@@ -164,11 +167,25 @@ class Lobby:
             print("Initiate thread for timer")
             eventlet.spawn(self._timer)
 
+    def ai_racer(self):
+        while True:
+            eventlet.sleep(float(1 / 60))
+            for client in self.positions:
+                if client.get("id") is None:
+                    client["pos"] = client.get("pos") + 1
+
+    def start_race(self):
+        # TODO: Emit Timer and Racestart
+        return
+
     def place_client_on_position(self, client):
         for position in self.positions:
             if position["id"] is None:
                 position["id"] = client.username
                 break
 
+        self.isIngame.add(client)
         events.sio.emit("wait_for_start", self.positions, room=self.id)
         print("sent :", self.positions, " -> ", client.username, " and everyone in his lobby")
+        if len(self.isIngame) == self.max_players:
+            self.start_race()
