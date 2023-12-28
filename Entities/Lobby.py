@@ -47,7 +47,7 @@ class Lobby:
         for segment in self.track:
             length += segment.get('segment_length') * 3
 
-        return length
+        return length * 200
 
 
     def get_ready_string(self):
