@@ -52,12 +52,12 @@ class Lobby:
         return ready_string[:-1]
 
     def get_updated_positions(self):
-        returnable = self.positions
+        returnable = self.positions.copy()
         number = 0
         for player in returnable:
             if player['id'] is None:
+                number += 1
                 player['id'] = "NPC" + str(number)
-
         return returnable
 
     def add_client(self, client):
