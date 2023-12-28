@@ -24,6 +24,7 @@ class Lobby:
             {"offset": 0, "pos": 0, "id": None},
             {"offset": 0.66, "pos": 0, "id": None},
         ]
+        self.track = logic.generate_track()
 
        # self.positions = [
         #    {"offset": -0.66, "pos": 0, "id": None},
@@ -167,7 +168,7 @@ class Lobby:
         if self.timer_started:
             self.gameStarted = True
             self.max_players = len(self.clients)
-            events.sio.emit("load_level", logic.generate_track(), room=self.id)
+            events.sio.emit("load_level", self.track, room=self.id)
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
@@ -181,7 +182,7 @@ class Lobby:
             eventlet.sleep(float(1 / 60))
             for client in self.positions:
                 if client.get("id") is None:
-                    client["pos"] = client.get("pos") + 200
+                    client["pos"] = (client.get("pos") + 200) % (len(self.track)*200)
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
