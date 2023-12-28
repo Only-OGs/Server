@@ -12,6 +12,8 @@ class Lobby:
         self.max_players = 0
         self.clients = set()
         self.gameStarted = False
+        self.raceStarted = False
+        self.RaceFinished = False
         self.allReady = False
         self.connections = 0
         self.isReady = set()
@@ -167,15 +169,17 @@ class Lobby:
             print("Initiate thread for timer")
             eventlet.spawn(self._timer)
 
-    def ai_racer(self):
-        while True:
+    def _ai_racer(self):
+        while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
             for client in self.positions:
                 if client.get("id") is None:
                     client["pos"] = client.get("pos") + 1
 
     def start_race(self):
-        # TODO: Emit Timer and Racestart
+        events.sio.emit("start_race", None, room=self.id)
+        self.raceStarted = True
+        eventlet.spawn(self._ai_racer())
         return
 
     def place_client_on_position(self, client):
@@ -187,5 +191,5 @@ class Lobby:
         self.isIngame.add(client)
         events.sio.emit("wait_for_start", self.positions, room=self.id)
         print("sent :", self.positions, " -> ", client.username, " and everyone in his lobby")
-        if len(self.isIngame) == self.max_players:
+        if len(self.isIngame) == self.max_players and not self.raceStarted:
             self.start_race()
