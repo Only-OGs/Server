@@ -19,24 +19,18 @@ class Lobby:
         self.isReady = set()
         self.isIngame = set()
         self.timer_started = False
+        self.track = logic.generate_track()
+        self.track_length = self._init_track_length()
         self.positions = [
             {"offset": -0.66, "pos": 0, "id": None},
             {"offset": 0, "pos": 0, "id": None},
-            {"offset": 0.66, "pos": 0, "id": None},
+           {"offset": 0.66, "pos": 0, "id": None},
+           {"offset": -0.66, "pos": 400, "id": None},
+            {"offset": 0, "pos": 400, "id": None},
+            {"offset": 0.66, "pos": 400, "id": None},
+            {"offset": -0.66, "pos": 800, "id": None},
+            {"offset": 0, "pos": 800, "id": None}
         ]
-        self.track = logic.generate_track()
-        self.track_length = self._init_track_length()
-
-       # self.positions = [
-        #    {"offset": -0.66, "pos": 0, "id": None},
-         #   {"offset": 0, "pos": 0, "id": None},
-          #  {"offset": 0.66, "pos": 0, "id": None},
-           # {"offset": -0.66, "pos": 400, "id": None},
-            #{"offset": 0, "pos": 400, "id": None},
-           # {"offset": 0.66, "pos": 400, "id": None},
-           # {"offset": -0.66, "pos": 800, "id": None},
-          #  {"offset": 0, "pos": 800, "id": None}
-        #]
         logic.lobbies.add(self)
 
     def __str__(self):
