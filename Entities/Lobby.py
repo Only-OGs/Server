@@ -24,8 +24,8 @@ class Lobby:
         self.positions = [
             {"offset": -0.66, "pos": 0, "id": None},
             {"offset": 0, "pos": 0, "id": None},
-           {"offset": 0.66, "pos": 0, "id": None},
-           {"offset": -0.66, "pos": 400, "id": None},
+            {"offset": 0.66, "pos": 0, "id": None},
+            {"offset": -0.66, "pos": 400, "id": None},
             {"offset": 0, "pos": 400, "id": None},
             {"offset": 0.66, "pos": 400, "id": None},
             {"offset": -0.66, "pos": 800, "id": None},
@@ -43,7 +43,6 @@ class Lobby:
 
         return length * 200
 
-
     def get_ready_string(self):
         ready_string = ""
 
@@ -51,6 +50,15 @@ class Lobby:
             ready_string += client.username + ";"
 
         return ready_string[:-1]
+
+    def get_updated_positions(self):
+        returnable = self.positions
+        number = 0
+        for player in returnable:
+            if player['id'] is None:
+                player['id'] = "NPC" + str(number)
+
+        return returnable
 
     def add_client(self, client):
         client.current_lobby = self
@@ -74,7 +82,7 @@ class Lobby:
                 record["offset"] = offset
                 break
 
-        events.sio.emit("updated_positions", self.positions, room=self.id)
+        events.sio.emit("updated_positions", self.get_updated_positions, room=self.id)
 
     def remove_client(self, client):
         client.current_lobby = False
@@ -183,10 +191,11 @@ class Lobby:
         print("AI RACING STARTS - THREADED")
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
-            for client in self.positions:
+            positions = self.get_updated_positions()
+            for client in positions:
                 if client.get("id") is None:
                     client["pos"] = (client.get("pos") + 200) % self.track_length
-            events.sio.emit("updated_positions", self.positions, room=self.id)
+            events.sio.emit("updated_positions", positions, room=self.id)
 
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
