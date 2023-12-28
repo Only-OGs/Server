@@ -181,7 +181,7 @@ class Lobby:
             eventlet.sleep(float(1 / 60))
             for client in self.positions:
                 if client.get("id") is None:
-                    client["pos"] = client.get("pos") + 20
+                    client["pos"] = client.get("pos") + 200
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
