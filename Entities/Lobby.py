@@ -25,6 +25,7 @@ class Lobby:
             {"offset": 0.66, "pos": 0, "id": None},
         ]
         self.track = logic.generate_track()
+        self.track_length = self._init_track_length()
 
        # self.positions = [
         #    {"offset": -0.66, "pos": 0, "id": None},
@@ -40,6 +41,14 @@ class Lobby:
 
     def __str__(self):
         return f"LobbyID: {self.id}, Users in Lobby: {self.get_players()}, Game has started: {self.gameStarted}"
+
+    def _init_track_length(self):
+        length = 0
+        for segment in self.track:
+            length += segment.get('segment_length') * 3
+
+        return length
+
 
     def get_ready_string(self):
         ready_string = ""
@@ -182,7 +191,7 @@ class Lobby:
             eventlet.sleep(float(1 / 60))
             for client in self.positions:
                 if client.get("id") is None:
-                    client["pos"] = (client.get("pos") + 200) % (len(self.track)*200)
+                    client["pos"] = (client.get("pos") + 200) % self.track_length
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
