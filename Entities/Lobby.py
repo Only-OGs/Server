@@ -288,6 +288,7 @@ class Lobby:
         print(self.id, " race begins in 1")
         eventlet.sleep(1)
         events.sio.emit("start_race", "Race Starts", room=self.id)
+
         eventlet.spawn(self._ai_racer())
 
     def spawn_npcs(self):
@@ -298,12 +299,12 @@ class Lobby:
         print("Start Race, self.raceStart is ", self.raceStarted)
         self.raceStarted = True
         print("self.raceStart now is ", self.raceStarted)
+        self.spawn_npcs()
         eventlet.spawn(self._race_timer())
         return
 
     def place_client_on_position(self, client):
         self.add_car(client.username, False)
-
         self.isIngame.add(client)
         events.sio.emit("wait_for_start", self.positions, room=self.id)
         print("sent :", self.positions, " -> ", client.username, " and everyone in his lobby")
