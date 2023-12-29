@@ -282,9 +282,11 @@ class Lobby:
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
+        pool = eventlet.GreenPool(size=1000)
         for player in self.positions:
             if not player['npc']:
-                eventlet.spawn(self.lap_watcher(player))
+                pool.spawn(self.lap_watcher(player))
+
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
             positions = self.positions
