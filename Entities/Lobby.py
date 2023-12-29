@@ -206,15 +206,16 @@ class Lobby:
     def avoid_check(self, current_player):
         for player in self.positions:
             if player is not current_player:
-                if (1000 > (player['pos'] - current_player['pos']) > 0) and self.overlap(x1=player.get("offset"), w1=0.3,
-                                                                                       x2=current_player.get("offset"),
-                                                                                       w2=0.3, percent=1.2):
+                if (1000 > (player['pos'] - current_player['pos']) > 0) and self.overlap(x1=player.get("offset"),
+                                                                                         w1=0.3,
+                                                                                         x2=current_player.get(
+                                                                                             "offset"),
+                                                                                         w2=0.3, percent=1.2):
                     new_offset = self.get_new_offset(player, current_player)
                     self.ai_avoid(new_offset, current_player)
 
     def ai_avoid(self, new_offset, player):
-        player['offset'] += 250*new_offset
-
+        player['offset'] += 250 * new_offset
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
@@ -228,12 +229,31 @@ class Lobby:
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
+    def _race_timer(self):
+        events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
+        eventlet.sleep(1)
+        events.sio.emit("start_race_timer", "5", room=self.id)
+        print(self.id," race begins in 5")
+        eventlet.sleep(1)
+        events.sio.emit("start_race_timer", "4", room=self.id)
+        print(self.id, " race begins in 4")
+        eventlet.sleep(1)
+        events.sio.emit("start_race_timer", "3", room=self.id)
+        print(self.id, " race begins in 3")
+        eventlet.sleep(1)
+        events.sio.emit("start_race_timer", "2", room=self.id)
+        print(self.id, " race begins in 2")
+        eventlet.sleep(1)
+        events.sio.emit("start_race_timer", "1", room=self.id)
+        print(self.id, " race begins in 1")
+        eventlet.sleep(1)
+        eventlet.spawn(self._ai_racer())
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
-        events.sio.emit("start_race", None, room=self.id)
+        events.sio.emit("start_race", "Race Starts", room=self.id)
         self.raceStarted = True
         print("self.raceStart now is ", self.raceStarted)
-        eventlet.spawn(self._ai_racer())
+        eventlet.spawn(self._race_timer())
         return
 
     def place_client_on_position(self, client):
