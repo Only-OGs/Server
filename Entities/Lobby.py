@@ -1,9 +1,12 @@
+import random
+
 import eventlet
 
 import logic
 import threading
 import time
 import events
+import random
 
 
 class Lobby:
@@ -185,7 +188,8 @@ class Lobby:
             positions = self.positions
             for client in positions:
                 if client.get("npc") is True:
-                    client["pos"] = (client.get("pos") + 200) % self.track_length
+                    rng_distance = random.randint(170, 220)
+                    client["pos"] = (client.get("pos") + rng_distance) % self.track_length
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
