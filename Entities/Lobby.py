@@ -24,20 +24,60 @@ class Lobby:
         self.timer_started = False
         self.track = logic.generate_track()
         self.track_length = self._init_track_length()
-        self.positions = [
-            {"offset": -0.66, "pos": 0, "id": 'NPC1', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0, "pos": 0, "id": 'NPC2', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0.66, "pos": 0, "id": 'NPC3', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": -0.66, "pos": 800, "id": 'NPC4', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0, "pos": 800, "id": 'NPC5', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0.66, "pos": 800, "id": 'NPC6', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": -0.66, "pos": 1600, "id": 'NPC7', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0, "pos": 1600, "id": 'NPC8', "npc": True, 'speed': random.randint(100, 220)}
-        ]
+        self.positions = []
         logic.lobbies.add(self)
 
     def __str__(self):
         return f"LobbyID: {self.id}, Users in Lobby: {self.get_players()}, Game has started: {self.gameStarted}"
+
+    def get_npc_number(self):
+        amount = 0
+        for player in self.positions:
+            if player['npc']:
+                amount += 1
+        return amount
+
+    def get_start_pos(self):
+        pos = 0
+        counter = 0
+        for player in self.positions:
+            if counter == 2:
+                pos += 400
+                counter = 0
+                continue
+            counter += 1
+
+        return pos
+
+    def get_start_offset(self):
+        total_players = len(self.positions)
+
+        if total_players % 3 == 0:
+            return -0.66
+        if total_players % 3 == 1:
+            return 0
+        if total_players % 3 == 2:
+            return 0.66
+
+    def add_car(self, player_id=None, npc=False, pos=None, offset=None):
+        if player_id is None:
+            player_id = "NPC" + str(self.get_npc_number())
+            npc = True
+        if pos is None:
+            pos = self.get_start_pos()
+        if offset is None:
+            offset = self.get_start_offset()
+
+
+        car = {
+            "offset": offset,
+            "pos": pos,
+            'startpos': pos,
+            "id": player_id,
+            "npc": npc,
+            'speed': random.randint(100, 220)
+        }
+        self.positions.append(car)
 
     def _init_track_length(self):
         length = 0
@@ -233,7 +273,7 @@ class Lobby:
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
         eventlet.sleep(1)
         events.sio.emit("start_race_timer", "5", room=self.id)
-        print(self.id," race begins in 5")
+        print(self.id, " race begins in 5")
         eventlet.sleep(1)
         events.sio.emit("start_race_timer", "4", room=self.id)
         print(self.id, " race begins in 4")
@@ -249,6 +289,11 @@ class Lobby:
         eventlet.sleep(1)
         events.sio.emit("start_race", "Race Starts", room=self.id)
         eventlet.spawn(self._ai_racer())
+
+    def spawn_npcs(self):
+        for i in range(50):
+            self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
+
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
         self.raceStarted = True
@@ -257,11 +302,7 @@ class Lobby:
         return
 
     def place_client_on_position(self, client):
-        for position in self.positions:
-            if position['npc'] is True:
-                position['id'] = client.username
-                position['npc'] = False
-                break
+        self.add_car(client.username, False)
 
         self.isIngame.add(client)
         events.sio.emit("wait_for_start", self.positions, room=self.id)
