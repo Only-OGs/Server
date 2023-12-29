@@ -211,11 +211,18 @@ class Lobby:
                                                                                       w1=0.3,
                                                                                       x2=current_player.get("offset"),
                                                                                       w2=0.3,
-                                                                                      percent=1.5):
+                                                                                      percent=1.2):
                     new_offset = self.get_new_offset(player, current_player)
                     self.ai_avoid(new_offset, current_player)
 
     def ai_avoid(self, new_offset, player):
+        print("old offset is -> ",
+              player['offset'],
+              "... offset_change is -> ",
+              new_offset,
+              "... new offset is -> ",
+              player['offset'] + new_offset)
+
         player['offset'] += new_offset
        # while not new_offset != 0:
         #    #eventlet.sleep(float(1 / 60))
