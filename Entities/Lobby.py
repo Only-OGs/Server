@@ -152,7 +152,7 @@ class Lobby:
 
     # Timer, der Spiel startet und Restzeit an Clients übermittelt, bricht ab sollte jemand nicht mehr Ready sein
     def _timer(self):
-        counter = 10
+        counter = 1
 
         print("Start counting the timer")
         self.timer_started = True
@@ -229,7 +229,7 @@ class Lobby:
             for client in positions:
                 if client.get("npc") is True:
                     client["pos"] = (client.get("pos") + client.get('speed')) % self.track_length
-                    self.avoid_check(client)
+                    #self.avoid_check(client)
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
