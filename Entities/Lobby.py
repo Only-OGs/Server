@@ -116,21 +116,19 @@ class Lobby:
         print("sent -> ", response_data, " to ", client.username)
 
     def lap_watcher(self, player):
+        print("Created lap_watcher for ", player['id'])
         counter = 0
         last_pos = player['pos']
         last_finish = 0
         while not self.RaceFinished:
-            print("test")
-            eventlet.sleep(1/1000)
+            eventlet.sleep(1)
             counter += 1
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
                 player['lap_times'].append(counter - last_finish)
                 print(player['lap_times'])
                 last_finish = counter
-
-
-
+            last_pos = player['pos']
 
     def update_pos(self, client, pos, offset):
         for record in self.positions:
