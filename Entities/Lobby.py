@@ -213,7 +213,7 @@ class Lobby:
 
     def ai_avoid(self, new_offset, player):
         while not new_offset != 0:
-            eventlet.sleep(float(1 / 60))
+            #eventlet.sleep(float(1 / 60))
             if new_offset > 0:
                 player['offset'] += 0.01
                 new_offset -= 0.01
