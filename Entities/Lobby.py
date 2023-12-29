@@ -22,14 +22,14 @@ class Lobby:
         self.track = logic.generate_track()
         self.track_length = self._init_track_length()
         self.positions = [
-            {"offset": -0.66, "pos": 0, "id": None},
-            {"offset": 0, "pos": 0, "id": None},
-            {"offset": 0.66, "pos": 0, "id": None},
-            {"offset": -0.66, "pos": 400, "id": None},
-            {"offset": 0, "pos": 400, "id": None},
-            {"offset": 0.66, "pos": 400, "id": None},
-            {"offset": -0.66, "pos": 800, "id": None},
-            {"offset": 0, "pos": 800, "id": None}
+            {"offset": -0.66, "pos": 0, "id": 'NPC1', "npc": True},
+            {"offset": 0, "pos": 0, "id": 'NPC2', "npc": True},
+            {"offset": 0.66, "pos": 0, "id": 'NPC3', "npc": True},
+            {"offset": -0.66, "pos": 400, "id": 'NPC4', "npc": True},
+            {"offset": 0, "pos": 400, "id": 'NPC5', "npc": True},
+            {"offset": 0.66, "pos": 400, "id": 'NPC6', "npc": True},
+            {"offset": -0.66, "pos": 800, "id": 'NPC7', "npc": True},
+            {"offset": 0, "pos": 800, "id": 'NPC8', "npc": True}
         ]
         logic.lobbies.add(self)
 
@@ -50,15 +50,6 @@ class Lobby:
             ready_string += client.username + ";"
 
         return ready_string[:-1]
-
-    def get_updated_positions(self):
-        returnable = self.positions.copy()
-        number = 0
-        for player in returnable:
-            if player['id'] is None:
-                number += 1
-                player['id'] = "NPC" + str(number)
-        return returnable
 
     def add_client(self, client):
         client.current_lobby = self
@@ -82,7 +73,7 @@ class Lobby:
                 record["offset"] = offset
                 break
 
-        events.sio.emit("updated_positions", self.get_updated_positions, room=self.id)
+        events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def remove_client(self, client):
         client.current_lobby = False
@@ -191,11 +182,11 @@ class Lobby:
         print("AI RACING STARTS - THREADED")
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
-            positions = self.get_updated_positions()
+            positions = self.positions
             for client in positions:
-                if client.get("id") is None:
+                if client.get("npc") is True:
                     client["pos"] = (client.get("pos") + 200) % self.track_length
-            events.sio.emit("updated_positions", positions, room=self.id)
+            events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
@@ -207,8 +198,9 @@ class Lobby:
 
     def place_client_on_position(self, client):
         for position in self.positions:
-            if position["id"] is None:
-                position["id"] = client.username
+            if position['npc'] is True:
+                position['id'] = client.username
+                position['npc'] = False
                 break
 
         self.isIngame.add(client)
