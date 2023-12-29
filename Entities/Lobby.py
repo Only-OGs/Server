@@ -191,7 +191,7 @@ class Lobby:
                 direction = 1
             else:
                 direction = -1
-        return direction * 1 / 1 * (current_car.get("speed") - other_car.get("speed")) / 12000
+        return direction * 1 / 25 * (current_car.get("speed") - other_car.get("speed")) / 12000
 
 
     def overlap(self, x1, w1, x2, w2, percent):
