@@ -188,7 +188,7 @@ class Lobby:
             positions = self.positions
             for client in positions:
                 if client.get("npc") is True:
-                    rng_distance = random.randint(100, 220)
+                    rng_distance = random.randint(10, 300)
                     client["pos"] = (client.get("pos") + rng_distance) % self.track_length
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
