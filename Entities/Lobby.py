@@ -310,12 +310,12 @@ class Lobby:
         events.sio.emit("start_race_timer", "1", room=self.id)
         print(self.id, " race begins in 1")
         eventlet.sleep(1)
+        events.sio.emit("start_race", "Race Starts", room=self.id)
+        eventlet.spawn(self._ai_racer())
         for player in self.positions:
             if not player['npc']:
                 eventlet.spawn(self.lap_watcher(player))
-        events.sio.emit("start_race", "Race Starts", room=self.id)
 
-        eventlet.spawn(self._ai_racer())
 
     def spawn_npcs(self):
         for i in range(10):
