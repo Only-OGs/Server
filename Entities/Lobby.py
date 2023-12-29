@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 import eventlet
 
@@ -69,14 +70,17 @@ class Lobby:
         if offset is None:
             offset = self.get_start_offset()
 
-
         car = {
             "offset": offset,
             "pos": pos,
             'startpos': pos,
             "id": player_id,
             "npc": npc,
-            'speed': random.randint(100, 220)
+            'speed': random.randint(100, 220),
+            'lap': 1,
+            'began_lap': True,
+            'lap_times': [],
+            'last_lap_start': 0
         }
         self.positions.append(car)
 
@@ -113,8 +117,15 @@ class Lobby:
     def update_pos(self, client, pos, offset):
         for record in self.positions:
             if record["id"] == client.username:
+                if record["pos"] > pos + record['startpos']:
+                    record["lap"] += 1
+                    lap_times = record["lap_times"]
+                    lap_times.append((datetime.now() - record["last_lap_started"]).total_seconds())
+                    record["last_lap_started"] = datetime.now()
+                    print(record)
                 record["pos"] = pos
                 record["offset"] = offset
+
                 break
 
         events.sio.emit("updated_positions", self.positions, room=self.id)
@@ -288,6 +299,7 @@ class Lobby:
         events.sio.emit("start_race_timer", "1", room=self.id)
         print(self.id, " race begins in 1")
         eventlet.sleep(1)
+        self.set_start_time()
         events.sio.emit("start_race", "Race Starts", room=self.id)
 
         eventlet.spawn(self._ai_racer())
@@ -296,6 +308,11 @@ class Lobby:
         for i in range(50):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
 
+    def set_start_time(self):
+        date = datetime.now()
+        for player in self.positions:
+            if not player['npc']:
+                player['last_lap_start'] = date
 
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
