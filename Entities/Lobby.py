@@ -120,6 +120,7 @@ class Lobby:
         last_pos = player['pos']
         last_finish = 0
         while not self.RaceFinished:
+            print("test")
             eventlet.sleep(1/1000)
             counter += 1
             if last_pos > (player['pos'] + player['startpos']):
