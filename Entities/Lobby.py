@@ -207,11 +207,11 @@ class Lobby:
     def avoid_check(self, current_player):
         for player in self.positions:
             if player is not current_player:
-                if player['pos'] - current_player['pos'] < 100 and self.overlap(x1=player.get("offset"),
-                                                                                w1=0.3,
-                                                                                x2=current_player.get("offset"),
-                                                                                w2=0.3,
-                                                                                percent=1.2):
+                if (100 > player['pos'] - current_player['pos'] > 0) and self.overlap(x1=player.get("offset"),
+                                                                                      w1=0.3,
+                                                                                      x2=current_player.get("offset"),
+                                                                                      w2=0.3,
+                                                                                      percent=1.5):
                     new_offset = self.get_new_offset(player, current_player)
                     self.ai_avoid(new_offset, current_player)
 
