@@ -25,6 +25,7 @@ class Lobby:
         self.track = logic.generate_track()
         self.track_length = self._init_track_length()
         self.positions = []
+        self.spawn_npcs()
         logic.lobbies.add(self)
 
     def __str__(self):
@@ -294,13 +295,12 @@ class Lobby:
     def spawn_npcs(self):
         for i in range(50):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
-        events.sio.emit("updated_positions", self.positions, room=self.id)
+
 
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
         self.raceStarted = True
         print("self.raceStart now is ", self.raceStarted)
-        self.spawn_npcs()
         eventlet.spawn(self._race_timer())
         return
 
