@@ -193,7 +193,6 @@ class Lobby:
                 direction = -1
         return direction * 1 / 25 * (current_car.get("speed") - other_car.get("speed")) / 12000
 
-
     def overlap(self, x1, w1, x2, w2, percent):
         if percent is None:
             percent = 1
@@ -207,9 +206,12 @@ class Lobby:
     def avoid_check(self, current_player):
         for player in self.positions:
             if player is not current_player:
-                if self.overlap(x1=player.get("offset"), w1=0.3, x2=current_player.get("offset"), w2=0.3, percent=1.2):
-                    new_offset = self.get_new_offset(player, current_player)
-                    self.ai_avoid(new_offset, current_player)
+                if (1000 > (player['pos'] - current_player['pos']) > 0) and self.overlap(x1=player.get("offset"), w1=0.3,
+                                                                                       x2=current_player.get("offset"),
+                                                                                       w2=0.3, percent=1.2):
+                    print("avoid car")
+                #     new_offset = self.get_new_offset(player, current_player)
+                #     self.ai_avoid(new_offset, current_player)
 
     def ai_avoid(self, new_offset, player):
         print("old offset is -> ",
@@ -220,14 +222,15 @@ class Lobby:
               player['offset'] + new_offset)
 
         player['offset'] += new_offset
-       # while not new_offset != 0:
-        #    #eventlet.sleep(float(1 / 60))
-         #   if new_offset > 0:
-          #      player['offset'] += 0.01
-           #     new_offset -= 0.01
-            #if new_offset < 0:
-             #   player['offset'] -= 0.01
-              #  new_offset += 0.01
+
+    # while not new_offset != 0:
+    #    #eventlet.sleep(float(1 / 60))
+    #   if new_offset > 0:
+    #      player['offset'] += 0.01
+    #     new_offset -= 0.01
+    # if new_offset < 0:
+    #   player['offset'] -= 0.01
+    #  new_offset += 0.01
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
