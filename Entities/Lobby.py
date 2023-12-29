@@ -25,14 +25,14 @@ class Lobby:
         self.track = logic.generate_track()
         self.track_length = self._init_track_length()
         self.positions = [
-            {"offset": -0.66, "pos": 0, "id": 'NPC1', "npc": True},
-            {"offset": 0, "pos": 0, "id": 'NPC2', "npc": True},
-            {"offset": 0.66, "pos": 0, "id": 'NPC3', "npc": True},
-            {"offset": -0.66, "pos": 400, "id": 'NPC4', "npc": True},
-            {"offset": 0, "pos": 400, "id": 'NPC5', "npc": True},
-            {"offset": 0.66, "pos": 400, "id": 'NPC6', "npc": True},
-            {"offset": -0.66, "pos": 800, "id": 'NPC7', "npc": True},
-            {"offset": 0, "pos": 800, "id": 'NPC8', "npc": True}
+            {"offset": -0.66, "pos": 0, "id": 'NPC1', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0, "pos": 0, "id": 'NPC2', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0.66, "pos": 0, "id": 'NPC3', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": -0.66, "pos": 400, "id": 'NPC4', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0, "pos": 400, "id": 'NPC5', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0.66, "pos": 400, "id": 'NPC6', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": -0.66, "pos": 800, "id": 'NPC7', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0, "pos": 800, "id": 'NPC8', "npc": True, 'speed': random.randint(100, 220)}
         ]
         logic.lobbies.add(self)
 
@@ -188,8 +188,7 @@ class Lobby:
             positions = self.positions
             for client in positions:
                 if client.get("npc") is True:
-                    rng_distance = random.randint(10, 300)
-                    client["pos"] = (client.get("pos") + rng_distance) % self.track_length
+                    client["pos"] = (client.get("pos") + client.get('speed')) % self.track_length
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
