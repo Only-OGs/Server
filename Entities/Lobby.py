@@ -209,7 +209,7 @@ class Lobby:
             if player is not current_player:
                 if player['pos'] - current_player['pos'] < 100 and self.overlap(x1=player.get("offset"), w1=0.3, x2=current_player.get("offset"), w2=0.3, percent=1.2):
                     new_offset = self.get_new_offset(player, current_player)
-                    eventlet.spawn(self.ai_avoid(new_offset, current_player))
+                    self.ai_avoid(new_offset, current_player)
 
     def ai_avoid(self, new_offset, player):
         while not new_offset != 0:
