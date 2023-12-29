@@ -212,19 +212,19 @@ class Lobby:
                                                                                 x2=current_player.get("offset"),
                                                                                 w2=0.3,
                                                                                 percent=1.2):
-                    pass
-                    #new_offset = self.get_new_offset(player, current_player)
-                    #self.ai_avoid(new_offset, current_player)
+                    new_offset = self.get_new_offset(player, current_player)
+                    self.ai_avoid(new_offset, current_player)
 
     def ai_avoid(self, new_offset, player):
-        while not new_offset != 0:
-            #eventlet.sleep(float(1 / 60))
-            if new_offset > 0:
-                player['offset'] += 0.01
-                new_offset -= 0.01
-            if new_offset < 0:
-                player['offset'] -= 0.01
-                new_offset += 0.01
+        player['offset'] += new_offset
+       # while not new_offset != 0:
+        #    #eventlet.sleep(float(1 / 60))
+         #   if new_offset > 0:
+          #      player['offset'] += 0.01
+           #     new_offset -= 0.01
+            #if new_offset < 0:
+             #   player['offset'] -= 0.01
+              #  new_offset += 0.01
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
@@ -234,7 +234,7 @@ class Lobby:
             for client in positions:
                 if client.get("npc") is True:
                     client["pos"] = (client.get("pos") + client.get('speed')) % self.track_length
-                    #self.avoid_check(client)
+                    self.avoid_check(client)
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
