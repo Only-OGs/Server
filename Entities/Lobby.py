@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+import pandas as pd
 
 import eventlet
 
@@ -120,8 +121,8 @@ class Lobby:
                 if record["pos"] > pos + record['startpos']:
                     record["lap"] += 1
                     lap_times = record["lap_times"]
-                    lap_times.append((datetime.now() - record["last_lap_started"]).total_seconds())
-                    record["last_lap_started"] = datetime.now()
+                    lap_times.append((datetime.now() - pd.to_datetime(record["last_lap_started"])).total_seconds())
+                    record["last_lap_started"] = datetime.now().isoformat()
                     print(record)
                 record["pos"] = pos
                 record["offset"] = offset
