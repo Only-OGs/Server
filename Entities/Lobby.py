@@ -294,6 +294,7 @@ class Lobby:
     def spawn_npcs(self):
         for i in range(50):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
+        events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
