@@ -28,11 +28,11 @@ class Lobby:
             {"offset": -0.66, "pos": 0, "id": 'NPC1', "npc": True, 'speed': random.randint(100, 220)},
             {"offset": 0, "pos": 0, "id": 'NPC2', "npc": True, 'speed': random.randint(100, 220)},
             {"offset": 0.66, "pos": 0, "id": 'NPC3', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": -0.66, "pos": 400, "id": 'NPC4', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0, "pos": 400, "id": 'NPC5', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0.66, "pos": 400, "id": 'NPC6', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": -0.66, "pos": 800, "id": 'NPC7', "npc": True, 'speed': random.randint(100, 220)},
-            {"offset": 0, "pos": 800, "id": 'NPC8', "npc": True, 'speed': random.randint(100, 220)}
+            {"offset": -0.66, "pos": 800, "id": 'NPC4', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0, "pos": 800, "id": 'NPC5', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0.66, "pos": 800, "id": 'NPC6', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": -0.66, "pos": 1600, "id": 'NPC7', "npc": True, 'speed': random.randint(100, 220)},
+            {"offset": 0, "pos": 1600, "id": 'NPC8', "npc": True, 'speed': random.randint(100, 220)}
         ]
         logic.lobbies.add(self)
 
@@ -181,6 +181,46 @@ class Lobby:
             print("Initiate thread for timer")
             eventlet.spawn(self._timer)
 
+    def get_new_offset(self, other_car, current_car):
+        if other_car.get("offset") > 0.5:
+            direction = -1
+        elif other_car.get("offset") < -0.5:
+            direction = 1
+        else:
+            if current_car.get("offset") > current_car.get("offset"):
+                direction = 1
+            else:
+                direction = -1
+        return direction * 1 / 1 * (current_car.get("speed") - other_car.get("speed")) / 12000
+
+
+    def overlap(self, x1, w1, x2, w2, percent):
+        if percent is None:
+            percent = 1
+        half = percent / 2
+        min1 = x1 - (w1 * half)
+        max1 = x1 + (w1 * half)
+        min2 = x2 - (w2 * half)
+        max2 = x2 + (w2 * half)
+        return not ((max1 < min2) or (min1 > max2))
+
+    def avoid_check(self, current_player):
+        for player in self.positions:
+            if player is not current_player:
+                if player['pos'] - current_player['pos'] < 100 and self.overlap(x1=player.get("offset"), w1=0.3, x2=current_player.get("offset"), w2=0.3, percent=1.2):
+                    new_offset = self.get_new_offset(player, current_player)
+                    eventlet.spawn(self.ai_avoid(new_offset, current_player))
+
+    def ai_avoid(self, new_offset, player):
+        while not new_offset != 0:
+            eventlet.sleep(1/60)
+            if new_offset > 0:
+                player['offset'] += 0.01
+                new_offset -= 0.01
+            if new_offset < 0:
+                player['offset'] -= 0.01
+                new_offset += 0.01
+
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
         while not self.RaceFinished:
@@ -189,6 +229,8 @@ class Lobby:
             for client in positions:
                 if client.get("npc") is True:
                     client["pos"] = (client.get("pos") + client.get('speed')) % self.track_length
+                    self.avoid_check(client)
+
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_race(self):
