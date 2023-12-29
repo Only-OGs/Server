@@ -115,18 +115,27 @@ class Lobby:
         events.sio.emit('lobby_management', response_data, room=client.sid)
         print("sent -> ", response_data, " to ", client.username)
 
+    def lap_watcher(self, player):
+        counter = 0
+        last_pos = player['pos']
+        last_finish = 0
+        while not self.RaceFinished:
+            eventlet.sleep(1/1000)
+            counter += 1
+            if last_pos > (player['pos'] + player['startpos']):
+                player['lap'] += 1
+                player['lap_times'].append(counter - last_finish)
+                print(player['lap_times'])
+                last_finish = counter
+
+
+
+
     def update_pos(self, client, pos, offset):
         for record in self.positions:
             if record["id"] == client.username:
-                if record["pos"] > pos + record['startpos']:
-                    record["lap"] += 1
-                    lap_times = record["lap_times"]
-                    lap_times.append((datetime.now() - pd.to_datetime(record["last_lap_started"])).total_seconds())
-                    record["last_lap_started"] = datetime.now().isoformat()
-                    print(record)
                 record["pos"] = pos
                 record["offset"] = offset
-
                 break
 
         events.sio.emit("updated_positions", self.positions, room=self.id)
@@ -300,13 +309,15 @@ class Lobby:
         events.sio.emit("start_race_timer", "1", room=self.id)
         print(self.id, " race begins in 1")
         eventlet.sleep(1)
-        self.set_start_time()
+        for player in self.positions:
+            if not player['npc']:
+                eventlet.spawn(self.lap_watcher(player))
         events.sio.emit("start_race", "Race Starts", room=self.id)
 
         eventlet.spawn(self._ai_racer())
 
     def spawn_npcs(self):
-        for i in range(50):
+        for i in range(10):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
 
     def set_start_time(self):
