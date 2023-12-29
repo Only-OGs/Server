@@ -28,6 +28,7 @@ class Lobby:
         self.track_length = self._init_track_length()
         self.positions = []
         self.spawn_npcs()
+        self.pool = eventlet.GreenPool(size=1000)
         logic.lobbies.add(self)
 
     def __str__(self):
@@ -121,7 +122,7 @@ class Lobby:
         last_pos = player['pos']
         last_finish = 0
         while not self.RaceFinished:
-            eventlet.sleep(1)
+            eventlet.sleep(float(1/10))
             counter += 1
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
@@ -280,10 +281,9 @@ class Lobby:
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
-        pool = eventlet.GreenPool(size=1000)
         for player in self.positions:
             if not player['npc']:
-                pool.spawn(self.lap_watcher(player))
+                self.pool.spawn(self.lap_watcher(player))
 
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
@@ -314,8 +314,7 @@ class Lobby:
         print(self.id, " race begins in 1")
         eventlet.sleep(1)
         events.sio.emit("start_race", "Race Starts", room=self.id)
-        eventlet.spawn(self._ai_racer())
-
+        self.pool.spawn(self._ai_racer())
 
     def spawn_npcs(self):
         for i in range(10):
@@ -331,7 +330,7 @@ class Lobby:
         print("Start Race, self.raceStart is ", self.raceStarted)
         self.raceStarted = True
         print("self.raceStart now is ", self.raceStarted)
-        eventlet.spawn(self._race_timer())
+        self.pool.spawn(self._race_timer())
         return
 
     def place_client_on_position(self, client):
