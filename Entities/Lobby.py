@@ -112,13 +112,20 @@ class Lobby:
         events.sio.emit('lobby_management', response_data, room=client.sid)
         print("sent -> ", response_data, " to ", client.username)
 
-    def lap_watcher(self):
-        print("Created lap_watcher for ")
+    def lap_watcher(self, player):
+        print("Created lap_watcher for ", player['id'])
         counter = 0
+        last_pos = player['pos']
+        last_finish = 0
         while not self.RaceFinished:
-            eventlet.sleep(float(1/10))
+            eventlet.sleep(float(1 / 10))
             counter += 100
-            print("counter: " + str(counter))
+            if last_pos > (player['pos'] + player['startpos']):
+                player['lap'] += 1
+                player['lap_times'].append(counter - last_finish)
+                print(player['lap_times'])
+                last_finish = counter
+            last_pos = player['pos']
 
 
     def update_pos(self, client, pos, offset):
@@ -282,8 +289,10 @@ class Lobby:
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
-    def start_watcher(self):
-        self.pool.spawn(self.lap_watcher())
+    def start_watcher(self, player_id):
+        for player in self.positions:
+            if player_id == player['id']:
+                self.pool.spawn(self.lap_watcher(player))
 
     def _race_timer(self):
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
