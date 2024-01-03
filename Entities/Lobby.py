@@ -142,7 +142,7 @@ class Lobby:
         counter = 0
         last_pos = player['pos']
         last_finish = 0
-        while not player['is_finished'] and not player['npc']:
+        while not player['race_finished'] and not player['npc']:
             eventlet.sleep(float(1 / 100))
             counter += 10
             if last_pos > (player['pos'] + player['startpos']):
@@ -153,7 +153,7 @@ class Lobby:
                 counter = 0
             if player['lap'] > 3:
                 print(player['id'], " is finished")
-                player['is_finished'] = True
+                player['race_finished'] = True
                 self.add_leaderbord(player)
                 self.race_finished()
             last_pos = player['pos']
