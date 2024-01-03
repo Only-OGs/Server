@@ -1,12 +1,8 @@
 import eventlet
 eventlet.monkey_patch()
-import random
 from datetime import datetime
-import pandas as pd
 
 import logic
-import threading
-import time
 import events
 import random
 
@@ -116,20 +112,14 @@ class Lobby:
         events.sio.emit('lobby_management', response_data, room=client.sid)
         print("sent -> ", response_data, " to ", client.username)
 
-    def lap_watcher(self, player):
-        print("Created lap_watcher for ", player['id'])
+    def lap_watcher(self):
+        print("Created lap_watcher for ")
         counter = 0
-        last_pos = player['pos']
-        last_finish = 0
         while not self.RaceFinished:
             eventlet.sleep(float(1/10))
             counter += 100
-            if last_pos > (player['pos'] + player['startpos']):
-                player['lap'] += 1
-                player['lap_times'].append(counter - last_finish)
-                print(player['lap_times'])
-                last_finish = counter
-            last_pos = player['pos']
+            print("counter: " + str(counter))
+
 
     def update_pos(self, client, pos, offset):
         for record in self.positions:
@@ -281,9 +271,7 @@ class Lobby:
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
-        for player in self.positions:
-            if not player['npc']:
-                self.pool.spawn(self.lap_watcher(player))
+        self.pool.spawn(self.lap_watcher())
 
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
