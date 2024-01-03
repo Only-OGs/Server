@@ -129,7 +129,7 @@ class Lobby:
 
     def race_finished(self):
         for player in self.positions:
-            if not player['is_finished']:
+            if not player['race_finished']:
                 return False
 
         self.RaceFinished = True
