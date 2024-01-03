@@ -272,3 +272,9 @@ def get_lobby(sid):
             return
 
     sio.emit("get_lobby", response_data, room=sid)
+
+@sio.event
+def test_watch(sid, data):
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+    eventlet.spawn(lobby.start_watcher())

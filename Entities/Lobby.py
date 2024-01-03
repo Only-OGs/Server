@@ -271,7 +271,6 @@ class Lobby:
 
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
-        self.pool.spawn(self.lap_watcher())
 
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
@@ -282,6 +281,9 @@ class Lobby:
                     self.avoid_check(client)
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
+
+    def start_watcher(self):
+        self.pool.spawn(self.lap_watcher())
 
     def _race_timer(self):
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
@@ -303,6 +305,7 @@ class Lobby:
         eventlet.sleep(1)
         events.sio.emit("start_race", "Race Starts", room=self.id)
         self.pool.spawn(self._ai_racer())
+
 
     def spawn_npcs(self):
         for i in range(10):
