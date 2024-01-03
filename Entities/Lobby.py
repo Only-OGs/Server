@@ -137,7 +137,7 @@ class Lobby:
         events.sio.emit('get_leaderboard', self.leaderboard, room=self.id)
         return self.RaceFinished
 
-    def format_time(milli):
+    def format_time(self, milli):
         m, rest = divmod(milli, 60000)
         s, ms = divmod(rest, 1000)
 
