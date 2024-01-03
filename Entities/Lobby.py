@@ -290,9 +290,12 @@ class Lobby:
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_watcher(self, player_id):
+        player_dict = dict()
         for player in self.positions:
             if player_id == player['id']:
-                self.pool.spawn(self.lap_watcher(player))
+                player_dict = player
+
+        self.pool.spawn(self.lap_watcher(player_dict))
 
     def _race_timer(self):
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)

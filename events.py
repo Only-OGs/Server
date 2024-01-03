@@ -277,4 +277,5 @@ def get_lobby(sid):
 def start_watch(sid):
     client = logic.get_client(sid)
     lobby = client.current_lobby
-    eventlet.spawn(lobby.start_watcher(client.id))
+
+    lobby.start_watcher(client.username)
