@@ -1,4 +1,5 @@
 import eventlet
+
 eventlet.monkey_patch()
 from datetime import datetime
 
@@ -23,6 +24,7 @@ class Lobby:
         self.track = logic.generate_track()
         self.track_length = self._init_track_length()
         self.positions = []
+        self.leaderboard = []
         self.spawn_npcs()
         self.pool = eventlet.GreenPool(size=1000)
         logic.lobbies.add(self)
@@ -79,7 +81,8 @@ class Lobby:
             'began_lap': True,
             'lap_times': [],
             'lap_time': 0,
-            'last_lap_start': 0
+            'last_lap_start': 0,
+            'race_finished': False
         }
         self.positions.append(car)
 
@@ -113,15 +116,35 @@ class Lobby:
         events.sio.emit('lobby_management', response_data, room=client.sid)
         print("sent -> ", response_data, " to ", client.username)
 
+    def add_leaderbord(self, player):
+        ms_time = sum(player['lap_times'])
+        overtime = ms_time % 1000
+        time = ms_time // 1000
+        time_string = str(time), ":", str(overtime)
+        record = {'posi': len(self.leaderboard) + 1,
+                  'name': player['id'],
+                  'time': time_string}
+
+        self.leaderboard.append(record)
+
+    def race_finished(self):
+        for player in self.positions:
+            if not player['is_finished']:
+                return False
+
+        self.RaceFinished = True
+        events.sio.emit('get_leaderboard', self.leaderboard, room=self.id)
+        return self.RaceFinished
+
     def lap_watcher(self, player_index):
         player = self.positions[player_index]
         print("Created lap_watcher for ", player['id'])
         counter = 0
         last_pos = player['pos']
         last_finish = 0
-        while not self.RaceFinished:
-            eventlet.sleep(float(1 / 10))
-            counter += 100
+        while not player['is_finished'] and not player['npc']:
+            eventlet.sleep(float(1 / 100))
+            counter += 10
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
                 player['lap_times'].append(counter)
@@ -130,10 +153,10 @@ class Lobby:
                 counter = 0
             if player['lap'] > 3:
                 print(player['id'], " is finished")
+                player['is_finished'] = True
+                self.add_leaderbord(player)
+                self.race_finished()
             last_pos = player['pos']
-
-            # TODO: Close Thread when player disconnects
-
 
     def update_pos(self, client, pos, offset):
         for record in self.positions:
@@ -326,7 +349,6 @@ class Lobby:
         events.sio.emit("start_race", "Race Starts", room=self.id)
         self.pool.spawn(self._ai_racer())
 
-
     def spawn_npcs(self):
         for i in range(10):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
@@ -351,3 +373,9 @@ class Lobby:
         print("sent :", self.positions, " -> ", client.username, " and everyone in his lobby")
         if len(self.isIngame) == self.max_players and not self.raceStarted:
             self.start_race()
+
+    def player_leave(self, username):
+        for player in self.positions:
+            if player['id'] == username:
+                player['npc'] = True
+
