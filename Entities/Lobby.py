@@ -82,7 +82,9 @@ class Lobby:
             'lap_times': [],
             'lap_time': 0,
             'last_lap_start': 0,
-            'race_finished': False
+            'race_finished': False,
+            'current_time': 0,
+            'best_time': 0
         }
         self.positions.append(car)
 
@@ -157,7 +159,9 @@ class Lobby:
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
                 player['lap_times'].append(counter)
-                player['lap_time'] = counter
+                player['lap_time'] = self.format_time(counter)
+                player['lap_times'].sort()
+                player['current_time'] = self.format_time(player['lap_times'][0])
                 print(player['lap_times'])
                 counter = 0
             if player['lap'] > 1:
