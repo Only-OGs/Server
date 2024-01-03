@@ -112,7 +112,8 @@ class Lobby:
         events.sio.emit('lobby_management', response_data, room=client.sid)
         print("sent -> ", response_data, " to ", client.username)
 
-    def lap_watcher(self, player):
+    def lap_watcher(self, player_index):
+        player = self.positions[player_index]
         print("Created lap_watcher for ", player['id'])
         counter = 0
         last_pos = player['pos']
@@ -126,6 +127,8 @@ class Lobby:
                 print(player['lap_times'])
                 last_finish = counter
             last_pos = player['pos']
+
+            # TODO: Close Thread when player disconnects
 
 
     def update_pos(self, client, pos, offset):
@@ -290,12 +293,13 @@ class Lobby:
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
     def start_watcher(self, player_id):
-        player_dict = dict()
+        player_index = 0
         for player in self.positions:
             if player_id == player['id']:
-                player_dict = player
+                break
+            player_index += 1
 
-        self.pool.spawn(self.lap_watcher(player_dict))
+        self.pool.spawn(self.lap_watcher(player_index))
 
     def _race_timer(self):
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
