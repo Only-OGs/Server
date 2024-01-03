@@ -120,7 +120,8 @@ class Lobby:
         ms_time = sum(player['lap_times'])
         overtime = ms_time % 1000
         time = ms_time // 1000
-        time_string = str((str(time), ":", str(overtime)))
+
+        time_string = str((str(time), "s ", str(overtime), "ms"))
         record = {'posi': len(self.leaderboard) + 1,
                   'name': player['id'],
                   'time': time_string}
@@ -378,4 +379,3 @@ class Lobby:
         for player in self.positions:
             if player['id'] == username:
                 player['npc'] = True
-
