@@ -121,7 +121,7 @@ class Lobby:
         overtime = ms_time % 1000
         time = ms_time // 1000
 
-        time_string = str((str(time), "s ", str(overtime), "ms"))
+        time_string = f"{time};{overtime}"
         record = {'posi': len(self.leaderboard) + 1,
                   'name': player['id'],
                   'time': time_string}
