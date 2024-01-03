@@ -1,8 +1,8 @@
+import eventlet
+eventlet.monkey_patch()
 import random
 from datetime import datetime
 import pandas as pd
-
-import eventlet
 
 import logic
 import threading
@@ -123,7 +123,7 @@ class Lobby:
         last_finish = 0
         while not self.RaceFinished:
             eventlet.sleep(float(1/10))
-            counter += 1
+            counter += 100
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
                 player['lap_times'].append(counter - last_finish)
