@@ -78,6 +78,7 @@ class Lobby:
             'lap': 1,
             'began_lap': True,
             'lap_times': [],
+            'lap_time': 0,
             'last_lap_start': 0
         }
         self.positions.append(car)
@@ -123,9 +124,12 @@ class Lobby:
             counter += 100
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
-                player['lap_times'].append(counter - last_finish)
+                player['lap_times'].append(counter)
+                player['lap_time'] = counter
                 print(player['lap_times'])
-                last_finish = counter
+                counter = 0
+            if player['lap'] > 3:
+                print(player['id'], " is finished")
             last_pos = player['pos']
 
             # TODO: Close Thread when player disconnects
