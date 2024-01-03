@@ -121,7 +121,7 @@ class Lobby:
         overtime = ms_time % 1000
         time = ms_time // 1000
 
-        time_string = f"{time};{overtime}"
+        time_string = self.format_time(ms_time)
         record = {'posi': len(self.leaderboard) + 1,
                   'name': player['id'],
                   'time': time_string}
@@ -136,6 +136,14 @@ class Lobby:
         self.RaceFinished = True
         events.sio.emit('get_leaderboard', self.leaderboard, room=self.id)
         return self.RaceFinished
+
+    def format_time(milli):
+        m, rest = divmod(milli, 60000)
+        s, ms = divmod(rest, 1000)
+
+        time_formated = f"{int(m)};{int(s)};{int(ms)}"
+
+        return time_formated
 
     def lap_watcher(self, player_index):
         player = self.positions[player_index]
@@ -167,6 +175,7 @@ class Lobby:
                 break
 
         events.sio.emit("updated_positions", self.positions, room=self.id)
+
 
     def remove_client(self, client):
         client.current_lobby = False
