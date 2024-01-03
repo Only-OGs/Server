@@ -120,7 +120,7 @@ class Lobby:
         ms_time = sum(player['lap_times'])
         overtime = ms_time % 1000
         time = ms_time // 1000
-        time_string = str(time), ":", str(overtime)
+        time_string = str((str(time), ":", str(overtime)))
         record = {'posi': len(self.leaderboard) + 1,
                   'name': player['id'],
                   'time': time_string}
@@ -151,7 +151,7 @@ class Lobby:
                 player['lap_time'] = counter
                 print(player['lap_times'])
                 counter = 0
-            if player['lap'] > 3:
+            if player['lap'] > 1:
                 print(player['id'], " is finished")
                 player['race_finished'] = True
                 self.add_leaderbord(player)
