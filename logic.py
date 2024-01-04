@@ -119,14 +119,14 @@ def is_already_on(name):
     return False
 
 def generate_track_assets(track_length):
-    amounts = track_length // 1000
+    amounts = track_length // 5000
     assets = []
 
     for i in range(amounts):
         asset = {
             'model': random.randint(0,23),
-            'pos': i * 1000,
-            'side': random.choice([1, -1])
+            'pos': i * 5000,
+            'side': random.choice([1.5, -1.5])
         }
         assets.append(asset)
     return assets
@@ -136,7 +136,7 @@ def generate_track_assets(track_length):
 def generate_track():
     print("generate new track...")
     # segments = random.randint(40, 60)
-    segments = 3
+    segments = 10
     track = []
 
     for i in range(0, segments):

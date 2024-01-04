@@ -371,7 +371,7 @@ class Lobby:
         self.pool.spawn(self._ai_racer())
 
     def spawn_npcs(self):
-        for i in range(10):
+        for i in range(300):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
 
     def set_start_time(self):
