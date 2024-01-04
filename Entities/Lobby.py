@@ -166,6 +166,7 @@ class Lobby:
                 print(player['lap_times'])
                 counter = 0
             if player['lap'] > 4:
+                print(player)
                 print(player['id'], " is finished")
                 player['lap'] -= 1
                 player['race_finished'] = True
