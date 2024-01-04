@@ -142,7 +142,7 @@ def generate_track():
     for i in range(0, segments):
         temp_dict = {
             'segment_length': random.randint(50, 200),
-            'curve_strength': random.randint(-6, 6),
+            'curve_strength': random.randint(-4, 4),
             'hill_height': 0,
         }
         track.append(temp_dict)

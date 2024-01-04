@@ -185,8 +185,6 @@ class Lobby:
                 record["offset"] = offset
                 break
 
-        events.sio.emit("updated_positions", self.positions, room=self.id)
-
     def remove_client(self, client):
         client.current_lobby = False
         self.clients.remove(client)
