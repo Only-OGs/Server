@@ -153,9 +153,14 @@ def generate_track():
 
         if i == 0:
             first_height = height
+            print("first height -> ", str(height))
 
         height_tracker += height
         print(str(i), ". height -> ", str(height))
+        print(str(i), ". first height - height_tracker-> ", str(first_height - height_tracker))
+        print(str(i), ". first height", str(first_height))
+        print(str(i), ". height tracker", str(height_tracker))
+
         temp_dict = {
             'segment_length': random.randint(50, 200),
             'curve_strength': random.randint(-4, 4),
