@@ -144,7 +144,6 @@ def generate_track():
     first_height = 0
     for i in range(0, segments):
         height = random.choice([-40, -20, 0, 20, 40])
-        height_tracker += height
 
         if i == (segments - 3) or i == (segments - 2):
             height = (first_height - height_tracker) / 2
@@ -154,6 +153,8 @@ def generate_track():
 
         if i == 0:
             first_height = height
+
+        height_tracker += height
 
         temp_dict = {
             'segment_length': random.randint(50, 200),
