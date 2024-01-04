@@ -136,6 +136,7 @@ class Lobby:
                 return False
 
         self.RaceFinished = True
+        print("Race is finished in Lobby ", self.id)
         events.sio.emit('get_leaderboard', self.leaderboard, room=self.id)
         return self.RaceFinished
 
