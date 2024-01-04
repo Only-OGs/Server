@@ -29,6 +29,7 @@ def get_client(sid):
         if client.sid == sid:
             return client
 
+
 # Lädt registrierte User aus users.txt in das User dict
 def load_registered_users():
     try:
@@ -84,7 +85,6 @@ def leave_lobby(sid):
 
     old_lobby.remove_client(client)
 
-
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
 
     print("sent ", response_data, " to ", sid)
@@ -118,14 +118,15 @@ def is_already_on(name):
             return True
     return False
 
+
 def generate_track_assets(track_length):
-    amounts = track_length // 5000
+    amounts = track_length // 20000
     assets = []
 
     for i in range(amounts):
         asset = {
-            'model': random.randint(0,23),
-            'pos': i * 5000,
+            'model': random.randint(0, 23),
+            'pos': i * 20000,
             'side': random.choice([1.5, -1.5])
         }
         assets.append(asset)
@@ -139,12 +140,24 @@ def generate_track():
     segments = 10
     track = []
 
+    height_tracker = 0
+    first_height = 0
     for i in range(0, segments):
+        height = random.choices([-40, -20, 0, 20, 40])
+        height_tracker += height
+
+        if (i == (segments - 1)) and (height_tracker != first_height):
+            height = first_height - height_tracker
+
+        if i == 0:
+            first_height = height
+
         temp_dict = {
             'segment_length': random.randint(50, 200),
             'curve_strength': random.randint(-4, 4),
-            'hill_height': 0,
+            'hill_height': height,
         }
+
         track.append(temp_dict)
 
     return track
