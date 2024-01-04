@@ -165,8 +165,9 @@ class Lobby:
                 player['best_time'] = self.format_time(player['lap_times'][0])
                 print(player['lap_times'])
                 counter = 0
-            if player['lap'] > 1:
+            if player['lap'] > 4:
                 print(player['id'], " is finished")
+                player['lap'] -= 1
                 player['race_finished'] = True
                 self.add_leaderbord(player)
                 self.race_finished()
