@@ -54,12 +54,12 @@ class Lobby:
             {
                 'segment_length': 100,
                 'curve_strength': 0,
-                'hill_height': 0,
+                'hill_height': 20,
             },
             {
                 'segment_length': 100,
                 'curve_strength': 3,
-                'hill_height': 0,
+                'hill_height': 10,
             },
             {
                 'segment_length': 140,
