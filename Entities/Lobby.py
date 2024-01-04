@@ -133,6 +133,7 @@ class Lobby:
     def race_finished(self):
         for player in self.positions:
             if not player['race_finished'] and not player['npc']:
+                print(player['id']," is not finished yet")
                 return False
 
         self.RaceFinished = True
