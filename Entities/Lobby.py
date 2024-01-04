@@ -29,12 +29,12 @@ class Lobby:
             {
                 'segment_length': 150,
                 'curve_strength': 0,
-                'hill_height': 20,
+                'hill_height': 0,
             },
             {
                 'segment_length': 100,
                 'curve_strength': 3,
-                'hill_height': 20,
+                'hill_height': 40,
             },
             {
                 'segment_length': 75,
@@ -54,17 +54,17 @@ class Lobby:
             {
                 'segment_length': 100,
                 'curve_strength': 0,
-                'hill_height': 20,
+                'hill_height': -40,
             },
             {
                 'segment_length': 100,
                 'curve_strength': 3,
-                'hill_height': 10,
+                'hill_height': -40,
             },
             {
                 'segment_length': 140,
                 'curve_strength': 4,
-                'hill_height': 0,
+                'hill_height': -40,
             },
             {
                 'segment_length': 75,
