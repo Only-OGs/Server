@@ -139,22 +139,18 @@ def generate_track():
     # segments = random.randint(40, 60)
     segments = 10
     track = []
-
+    fl_height = 0
     height_tracker = 0
     first_height = 0
+
     for i in range(0, segments):
         height = random.choice([-40, -20, 0, 20, 40])
 
-
-        if i == (segments - 3) or i == (segments - 2):
-            height = int((first_height - height_tracker) / 2)
-
-        if i == (segments - 1):
-            height = (first_height - height_tracker)
-
         if i == 0:
-            first_height = height
-            print("first height -> ", str(height))
+            fl_height = height
+
+        if i == segments - 1:
+            height = fl_height
 
         height_tracker += height
 
