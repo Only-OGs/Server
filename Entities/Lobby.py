@@ -42,7 +42,7 @@ class Lobby:
                 'hill_height': 40,
             },
             {
-                'segment_length': random.randint(150),
+                'segment_length': 150,
                 'curve_strength': -3,
                 'hill_height': 40,
             },
