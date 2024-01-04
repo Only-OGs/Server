@@ -29,7 +29,7 @@ class Lobby:
             {
                 'segment_length': 150,
                 'curve_strength': 0,
-                'hill_height': 0,
+                'hill_height': 40,
             },
             {
                 'segment_length': 100,
@@ -49,7 +49,7 @@ class Lobby:
             {
                 'segment_length': 100,
                 'curve_strength': 0,
-                'hill_height': 20,
+                'hill_height': -40,
             },
             {
                 'segment_length': 100,
