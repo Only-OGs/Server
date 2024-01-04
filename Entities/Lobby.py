@@ -23,6 +23,7 @@ class Lobby:
         self.timer_started = False
         self.track = logic.generate_track()
         self.track_length = self._init_track_length()
+        self.track_assets = logic.generate_track_assets(self.track_length)
         self.positions = []
         self.leaderboard = []
         self.spawn_npcs()
@@ -78,6 +79,7 @@ class Lobby:
             "npc": npc,
             'speed': random.randint(100, 220),
             'lap': 1,
+            'asset': random.randint(1, 6),
             'began_lap': True,
             'lap_times': [],
             'lap_time': 0,
@@ -133,7 +135,7 @@ class Lobby:
     def race_finished(self):
         for player in self.positions:
             if not player['race_finished'] and not player['npc']:
-                print(player['id']," is not finished yet")
+                print(player['id'], " is not finished yet")
                 return False
 
         self.RaceFinished = True
@@ -184,7 +186,6 @@ class Lobby:
                 break
 
         events.sio.emit("updated_positions", self.positions, room=self.id)
-
 
     def remove_client(self, client):
         client.current_lobby = False
@@ -282,6 +283,7 @@ class Lobby:
             self.gameStarted = True
             self.max_players = len(self.clients)
             events.sio.emit("load_level", self.track, room=self.id)
+            events.sio.emit("load_assets", self.track_assets, room=self.id)
 
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
@@ -365,7 +367,7 @@ class Lobby:
         events.sio.emit("start_race_timer", "1", room=self.id)
         print(self.id, " race begins in 1")
         eventlet.sleep(1)
-        events.sio.emit("start_race", "Race Starts", room=self.id)
+        events.sio.emit("start_race", "Go!", room=self.id)
         self.pool.spawn(self._ai_racer())
 
     def spawn_npcs(self):

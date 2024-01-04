@@ -118,6 +118,19 @@ def is_already_on(name):
             return True
     return False
 
+def generate_track_assets(track_length):
+    amounts = track_length // 1000
+    assets = []
+
+    for i in range(amounts):
+        asset = {
+            'model': random.randint(0,23),
+            'pos': i * 1000,
+            'side': random.choice([1, -1])
+        }
+        assets.append(asset)
+    return assets
+
 
 # Generiert eine Strecke für das Rennen der Lobby
 def generate_track():
@@ -130,7 +143,7 @@ def generate_track():
         temp_dict = {
             'segment_length': random.randint(50, 200),
             'curve_strength': random.randint(-6, 6),
-            'hill_height': 0
+            'hill_height': 0,
         }
         track.append(temp_dict)
 
