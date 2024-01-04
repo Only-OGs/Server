@@ -81,6 +81,7 @@ def leave_lobby(sid):
     old_lobby = client.current_lobby
 
     events.sio.leave_room(sid, old_lobby.id)
+
     old_lobby.remove_client(client)
 
 

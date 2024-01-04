@@ -155,13 +155,14 @@ class Lobby:
         last_finish = 0
         while not player['race_finished'] and not player['npc']:
             eventlet.sleep(float(1 / 100))
+            player['current_time'] = self.format_time(counter)
             counter += 10
             if last_pos > (player['pos'] + player['startpos']):
                 player['lap'] += 1
                 player['lap_times'].append(counter)
                 player['lap_time'] = self.format_time(counter)
                 player['lap_times'].sort()
-                player['current_time'] = self.format_time(player['lap_times'][0])
+                player['best_time'] = self.format_time(player['lap_times'][0])
                 print(player['lap_times'])
                 counter = 0
             if player['lap'] > 1:
@@ -192,7 +193,7 @@ class Lobby:
 
         for entry in self.positions:
             if entry["id"] == client.username:
-                entry["id"] = None
+                entry["npc"] = True
 
         # Zerstöre Lobby wenn leer
         if self.connections == 0:
