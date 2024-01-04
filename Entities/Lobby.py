@@ -21,7 +21,56 @@ class Lobby:
         self.isReady = set()
         self.isIngame = set()
         self.timer_started = False
-        self.track = logic.generate_track()
+        self.track = [{
+            'segment_length': 100,
+            'curve_strength': 0,
+            'hill_height': 0,
+        },
+            {
+                'segment_length': 150,
+                'curve_strength': 0,
+                'hill_height': 20,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': 3,
+                'hill_height': 20,
+            },
+            {
+                'segment_length': 75,
+                'curve_strength': 0,
+                'hill_height': 40,
+            },
+            {
+                'segment_length': random.randint(150),
+                'curve_strength': -3,
+                'hill_height': 40,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': 0,
+                'hill_height': 20,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': 0,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': 3,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 140,
+                'curve_strength': 4,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 75,
+                'curve_strength': 0,
+                'hill_height': 0,
+            }]
         self.track_length = self._init_track_length()
         self.track_assets = logic.generate_track_assets(self.track_length)
         self.positions = []
