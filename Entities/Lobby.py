@@ -165,7 +165,7 @@ class Lobby:
                 player['best_time'] = self.format_time(player['lap_times'][0])
                 print(player['lap_times'])
                 counter = 0
-            if player['lap'] > 4:
+            if player['lap'] > 3:
                 print(player)
                 print(player['id'], " is finished")
                 player['lap'] -= 1
