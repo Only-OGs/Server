@@ -143,7 +143,7 @@ def generate_track():
     height_tracker = 0
     first_height = 0
     for i in range(0, segments):
-        height = random.choices([-40, -20, 0, 20, 40])
+        height = random.choice([-40, -20, 0, 20, 40])
         height_tracker += height
 
         if (i == (segments - 1)) and (height_tracker != first_height):
