@@ -30,23 +30,6 @@ def get_client(sid):
             return client
 
 
-# Lädt registrierte User aus users.txt in das User dict
-def load_registered_users():
-    try:
-        with open(file_path, 'r') as file:
-            for line in file:
-                # Annahme: Benutzername und Passwort sind durch ein Leerzeichen getrennt
-                username, password = line.strip().split()
-                users[username] = password
-
-    except FileNotFoundError:
-        print(f"Die Datei {file_path} wurde nicht gefunden.")
-        return None
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
-        return None
-
-
 # Generiere Lobby Code
 def generate_lobby_code():
     lobby = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
@@ -71,12 +54,7 @@ def get_lobby_by_code(code):
             return lobby
 
 
-# Lobby starten
-def start_lobby(lobby):
-    # TODO: Lobby starten
-    return
-
-
+# Entferne Client aus Lobby
 def leave_lobby(sid):
     client = get_client(sid)
     old_lobby = client.current_lobby
@@ -119,8 +97,9 @@ def is_already_on(name):
     return False
 
 
+# Generiert Assets für die Strecke
 def generate_track_assets(track_length):
-    amounts = track_length // 20000
+    amounts = track_length // 10000
     assets = []
 
     for i in range(amounts):
@@ -131,41 +110,3 @@ def generate_track_assets(track_length):
         }
         assets.append(asset)
     return assets
-
-
-# Generiert eine Strecke für das Rennen der Lobby
-def generate_track():
-    print("generate new track...")
-    # segments = random.randint(40, 60)
-    segments = 10
-    track = []
-    fl_height = 0
-    height_tracker = 0
-    first_height = 0
-
-    for i in range(0, segments):
-        height = random.choice([-40, -20, 0, 20, 40])
-
-        if i == 0:
-            fl_height = height
-
-        if i == segments - 1:
-            height = fl_height
-
-        height_tracker += height
-
-
-        print(str(i), ". height -> ", str(height))
-        print(str(i), ". first height - height_tracker-> ", str(first_height - height_tracker))
-        print(str(i), ". first height", str(first_height))
-        print(str(i), ". height tracker", str(height_tracker))
-
-        temp_dict = {
-            'segment_length': random.randint(50, 200),
-            'curve_strength': random.randint(-4, 4),
-            'hill_height': height,
-        }
-
-        track.append(temp_dict)
-
-    return track

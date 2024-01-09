@@ -2,10 +2,14 @@ import eventlet
 
 eventlet.monkey_patch()
 from datetime import datetime
-
 import logic
 import events
 import random
+
+
+#
+# Diese Klasse bildet Lobbies ab inklusive aller Datenstrukturen und Logiken die benötigt werden
+#
 
 
 class Lobby:
@@ -21,51 +25,58 @@ class Lobby:
         self.isReady = set()
         self.isIngame = set()
         self.timer_started = False
-        self.track = [{
-            'segment_length': 100,
-            'curve_strength': 0,
-            'hill_height': 0,
-        },
+        self.track = [
+            {
+                'segment_length': 80,
+                'curve_strength': 0,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 130,
+                'curve_strength': 0,
+                'hill_height': 80,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': 4,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': -4,
+                'hill_height': 60,
+            },
             {
                 'segment_length': 150,
                 'curve_strength': 0,
-                'hill_height': 40,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 90,
+                'curve_strength': 2,
+                'hill_height': -20,
+            },
+            {
+                'segment_length': 100,
+                'curve_strength': 0,
+                'hill_height': 0,
             },
             {
                 'segment_length': 100,
                 'curve_strength': 3,
-                'hill_height': 40,
-            },
-            {
-                'segment_length': 75,
-                'curve_strength': 0,
-                'hill_height': 40,
-            },
-            {
-                'segment_length': 150,
-                'curve_strength': -3,
-                'hill_height': 40,
-            },
-            {
-                'segment_length': 100,
-                'curve_strength': 0,
-                'hill_height': -40,
-            },
-            {
-                'segment_length': 100,
-                'curve_strength': 0,
-                'hill_height': -40,
-            },
-            {
-                'segment_length': 100,
-                'curve_strength': 3,
-                'hill_height': -40,
+                'hill_height': -80,
             },
             {
                 'segment_length': 140,
-                'curve_strength': 4,
+                'curve_strength': 5,
+                'hill_height': 0,
+            },
+            {
+                'segment_length': 140,
+                'curve_strength': 5,
                 'hill_height': -40,
             },
+
             {
                 'segment_length': 75,
                 'curve_strength': 0,
@@ -82,6 +93,7 @@ class Lobby:
     def __str__(self):
         return f"LobbyID: {self.id}, Users in Lobby: {self.get_players()}, Game has started: {self.gameStarted}"
 
+    # Gibt die Nummer des nächsten NPC zurück
     def get_npc_number(self):
         amount = 0
         for player in self.positions:
@@ -89,6 +101,7 @@ class Lobby:
                 amount += 1
         return amount
 
+    # Gibt die nächste freie Startposition zurück
     def get_start_pos(self):
         pos = 0
         counter = 0
@@ -101,6 +114,7 @@ class Lobby:
 
         return pos
 
+    # Gibt das nächste freie Offset für den Start mit
     def get_start_offset(self):
         total_players = len(self.positions)
 
@@ -111,6 +125,7 @@ class Lobby:
         if total_players % 3 == 2:
             return 0.66
 
+    # Fügt ein Auto der aktuellen Runde zu
     def add_car(self, player_id=None, npc=False, pos=None, offset=None):
         if player_id is None:
             player_id = "NPC" + str(self.get_npc_number())
@@ -139,6 +154,7 @@ class Lobby:
         }
         self.positions.append(car)
 
+    # Berechnet Länge der generierten Strecke
     def _init_track_length(self):
         length = 0
         for segment in self.track:
@@ -146,6 +162,7 @@ class Lobby:
 
         return length * 200
 
+    # Gibt einen String zurück aller Spieler die bereit sind
     def get_ready_string(self):
         ready_string = ""
 
@@ -154,6 +171,7 @@ class Lobby:
 
         return ready_string[:-1]
 
+    # Fügt Client der Lobby hinzu
     def add_client(self, client):
         client.current_lobby = self
         self.clients.add(client)
@@ -169,6 +187,7 @@ class Lobby:
         events.sio.emit('lobby_management', response_data, room=client.sid)
         print("sent -> ", response_data, " to ", client.username)
 
+    # Fügt Spieler dem Leaderboard hinzu
     def add_leaderbord(self, player):
         ms_time = sum(player['lap_times'])
         overtime = ms_time % 1000
@@ -181,6 +200,7 @@ class Lobby:
 
         self.leaderboard.append(record)
 
+    # Überprüft ob jeder Spieler das Rennen beendet hat. Gibt das Leaderboard aus, wenn alle fertig sind
     def race_finished(self):
         for player in self.positions:
             if not player['race_finished'] and not player['npc']:
@@ -200,6 +220,7 @@ class Lobby:
 
         return time_formated
 
+    # Funktion die für jeden Spieler überprüft, ob er eine Runde abgeschlossen oder das Rennen beendet hat
     def lap_watcher(self, player_index):
         player = self.positions[player_index]
         print("Created lap_watcher for ", player['id'])
@@ -227,6 +248,7 @@ class Lobby:
                 self.race_finished()
             last_pos = player['pos']
 
+    # Aktualisiert die Positionen der Spieler in der Lobby
     def update_pos(self, client, pos, offset):
         for record in self.positions:
             if record["id"] == client.username:
@@ -234,6 +256,7 @@ class Lobby:
                 record["offset"] = offset
                 break
 
+    # Entfernt Spieler aus Lobby
     def remove_client(self, client):
         client.current_lobby = False
         self.clients.remove(client)
@@ -278,6 +301,7 @@ class Lobby:
 
         return player_string[:-1]
 
+    # Spieler ist bereit
     def is_ready(self, client):
         self.isReady.add(client)
         print(client.username, " in lobby ", self.id, " is ready")
@@ -285,6 +309,7 @@ class Lobby:
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
 
+    # Spieler ist nicht mehr bereit
     def not_ready(self, client):
         self.isReady.remove(client)
         print(client.username, " in lobby ", self.id, " is not ready")
@@ -302,13 +327,9 @@ class Lobby:
 
         return self.allReady
 
-    def _timer_delay_set(self):
-        eventlet.sleep(3)
-        self.timer_started = False
-
     # Timer, der Spiel startet und Restzeit an Clients übermittelt, bricht ab sollte jemand nicht mehr Ready sein
     def _timer(self):
-        counter = 1
+        counter = 10
 
         print("Start counting the timer")
         self.timer_started = True
@@ -338,6 +359,7 @@ class Lobby:
             print("Initiate thread for timer")
             eventlet.spawn(self._timer)
 
+    # Berechnet neues Offset für AI-Autos
     def get_new_offset(self, other_car, current_car):
         if other_car.get("offset") > 0.5:
             direction = -1
@@ -350,16 +372,7 @@ class Lobby:
                 direction = -1
         return direction * (1 / 25 * (current_car.get("speed") - other_car.get("speed")) / 12000)
 
-    def overlap(self, x1, w1, x2, w2, percent):
-        if percent is None:
-            percent = 1
-        half = percent / 2
-        min1 = x1 - (w1 * half)
-        max1 = x1 + (w1 * half)
-        min2 = x2 - (w2 * half)
-        max2 = x2 + (w2 * half)
-        return not ((max1 < min2) or (min1 > max2))
-
+    # Überprüft ob AI ausweichen muss
     def avoid_check(self, current_player):
         for player in self.positions:
             if player is not current_player:
@@ -371,9 +384,11 @@ class Lobby:
                     new_offset = self.get_new_offset(player, current_player)
                     self.ai_avoid(new_offset, current_player)
 
+    # Hilfsfunktion zum setzen des neuen Off-Sets für die AI
     def ai_avoid(self, new_offset, player):
         player['offset'] += 250 * new_offset
 
+    # Bewegt die AI Autos
     def _ai_racer(self):
         print("AI RACING STARTS - THREADED")
 
@@ -387,6 +402,7 @@ class Lobby:
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
+    # Starte lap_watcher für jeden Spieler, der keine AI ist
     def start_watcher(self, player_id):
         player_index = 0
         for player in self.positions:
@@ -396,6 +412,7 @@ class Lobby:
 
         self.pool.spawn(self.lap_watcher(player_index))
 
+    # Timer für Start des Rennens
     def _race_timer(self):
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
         eventlet.sleep(1)
@@ -417,16 +434,12 @@ class Lobby:
         events.sio.emit("start_race", "Go!", room=self.id)
         self.pool.spawn(self._ai_racer())
 
+    # Erstellt NPCs
     def spawn_npcs(self):
-        for i in range(50):
+        for i in range(75):
             self.add_car(offset=random.random() * random.choice([-0.8, 0.8]), pos=random.randint(0, self.track_length))
 
-    def set_start_time(self):
-        date = datetime.now()
-        for player in self.positions:
-            if not player['npc']:
-                player['last_lap_start'] = date
-
+    # Startet das Rennen
     def start_race(self):
         print("Start Race, self.raceStart is ", self.raceStarted)
         self.raceStarted = True
@@ -434,6 +447,7 @@ class Lobby:
         self.pool.spawn(self._race_timer())
         return
 
+    # Setzt Spieler, die in das Spiel kommen, auf ihre Startpositionen
     def place_client_on_position(self, client):
         self.add_car(client.username, False)
         self.isIngame.add(client)
@@ -442,6 +456,7 @@ class Lobby:
         if len(self.isIngame) == self.max_players and not self.raceStarted:
             self.start_race()
 
+    # Wenn Spieler im Spiel die Verbindung abbricht, fährt er als NPC weiter
     def player_leave(self, username):
         for player in self.positions:
             if player['id'] == username:

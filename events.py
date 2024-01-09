@@ -11,6 +11,7 @@ sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
 db = Database("og_racer.db")
 
+
 # Verbindung eines neuen Clients
 @sio.event
 def connect(sid, environ):
@@ -33,30 +34,10 @@ def disconnect(sid):
     print(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
 
 
+# Client will Lobby verlassen
 @sio.event
 def leave_lobby(sid):
     logic.leave_lobby(sid)
-
-
-@sio.event
-def start_game(sid):
-    client = logic.get_client(sid)
-    lobby = logic.get_lobby_by_code(client.current_lobby.id)
-
-    print(f"received go request from {client.username}")
-    if not lobby.gameStarted:
-        track = logic.generate_track()
-        lobby.gameStarted = True
-
-        sio.emit("game_start", "go", room=lobby.id)
-        sio.emit("receive_track", track, room=lobby.id)
-
-        print(f"sent go to lobby: {lobby.id}")
-        print(f"sent following track -> \n {track} \n to {client.username}")
-
-        return
-
-    print(f"did nothing because game has already started @ {client.username}")
 
 
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
@@ -97,6 +78,7 @@ def login(sid, data):
     print("sent ", response_data, " to ", sid)
 
 
+# Client loggt sich aus
 @sio.event
 def logout(sid):
     print("received logout request from ", sid)
@@ -129,7 +111,7 @@ def register(sid, data):
     if db.user_exist(name):
         response_data = {'status': 'register_failed', 'message': f"{name} ist bereits registriert"}
     else:
-        db.add_user(name,password)
+        db.add_user(name, password)
         response_data = {'status': 'register_success', 'message': f"{name} wurde erfolgreich registriert"}
 
     sio.emit('register', response_data, room=sid)
@@ -155,6 +137,7 @@ def create_lobby(sid):
     print("sent ", response_data, " to ", sid)
 
 
+# Chat-Nachrichten in Lobby
 @sio.event
 def sent_message(sid, chat_message):
     client = logic.get_client(sid)
@@ -166,6 +149,7 @@ def sent_message(sid, chat_message):
     print("LOBBY -", lobby.id, ": ", name, " sent message -> ", chat_message)
 
 
+# Client erklärt sich bereit
 @sio.event
 def is_ready(sid):
     print(sid, " wants to be ready")
@@ -184,6 +168,7 @@ def is_ready(sid):
     sio.emit('lobby_management', response_data, room=lobby.id)
 
 
+# Client erklärt sich nicht mehr bereit
 @sio.event
 def not_ready(sid):
     print(sid, " wants to be not ready anymore")
@@ -202,6 +187,7 @@ def not_ready(sid):
     sio.emit('lobby_management', response_data, room=lobby.id)
 
 
+# Client will Lobby per Code beitreten
 @sio.event
 def join_lobby(sid, data):
     print("received ", data, " from ", sid)
@@ -236,6 +222,7 @@ def join_lobby(sid, data):
     print("sent ", response_data, " to ", sid)
 
 
+# Client gibt an das er das Spiel geladen hat
 @sio.event
 def client_is_ingame(sid):
     print(sid, " is ingame")
@@ -243,6 +230,8 @@ def client_is_ingame(sid):
     lobby = client.current_lobby
     lobby.place_client_on_position(client)
 
+
+# Client gibt aktuelle Ingame Position durch
 @sio.event
 def ingame_pos(sid, data):
     pos = data["pos"]
@@ -252,6 +241,8 @@ def ingame_pos(sid, data):
     lobby = client.current_lobby
     lobby.update_pos(client, pos, offset)
 
+
+# Client will zufällige Lobby haben
 @sio.event
 def get_lobby(sid):
     print("received random lobby request from ", sid)
@@ -273,6 +264,8 @@ def get_lobby(sid):
 
     sio.emit("get_lobby", response_data, room=sid)
 
+
+# Client benötigt Watcher für die Rundenzeit
 @sio.event
 def start_watch(sid):
     client = logic.get_client(sid)
@@ -280,10 +273,11 @@ def start_watch(sid):
 
     lobby.start_watcher(client.username)
 
+
+# Client möchte das Spiel verlassen
 @sio.event
 def game_leave(sid):
     client = logic.get_client(sid)
     lobby = client.current_lobby
 
     lobby.player_leave(client.username)
-
