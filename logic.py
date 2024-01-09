@@ -99,13 +99,13 @@ def is_already_on(name):
 
 # Generiert Assets für die Strecke
 def generate_track_assets(track_length):
-    amounts = track_length // 10000
+    amounts = track_length // 5000
     assets = []
 
     for i in range(amounts):
         asset = {
             'model': random.randint(0, 23),
-            'pos': i * 20000,
+            'pos': i * 5000,
             'side': random.choice([1.5, -1.5])
         }
         assets.append(asset)
