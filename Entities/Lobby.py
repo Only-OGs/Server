@@ -402,6 +402,17 @@ class Lobby:
 
             events.sio.emit("updated_positions", self.positions, room=self.id)
 
+    # Checkt die Hitboxen für das Überholmanöver
+    def overlap(self, x1, w1, x2, w2, percent):
+        if percent is None:
+            percent = 1
+        half = percent / 2
+        min1 = x1 - (w1 * half)
+        max1 = x1 + (w1 * half)
+        min2 = x2 - (w2 * half)
+        max2 = x2 + (w2 * half)
+        return not ((max1 < min2) or (min1 > max2))
+
     # Starte lap_watcher für jeden Spieler, der keine AI ist
     def start_watcher(self, player_id):
         player_index = 0
