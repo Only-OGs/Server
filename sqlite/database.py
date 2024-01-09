@@ -10,6 +10,7 @@ class Database:
         self.db_name = db
         self.conn = sqlite3.connect(self.db_name)
         self.cr = self.conn.cursor()
+        self.initialize_db()
         print("database initialized")
 
     def user_exist(self, username):

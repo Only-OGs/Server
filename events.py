@@ -272,3 +272,18 @@ def get_lobby(sid):
             return
 
     sio.emit("get_lobby", response_data, room=sid)
+
+@sio.event
+def start_watch(sid):
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+
+    lobby.start_watcher(client.username)
+
+@sio.event
+def game_leave(sid):
+    client = logic.get_client(sid)
+    lobby = client.current_lobby
+
+    lobby.player_leave(client.username)
+

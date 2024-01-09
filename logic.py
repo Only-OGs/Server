@@ -29,6 +29,7 @@ def get_client(sid):
         if client.sid == sid:
             return client
 
+
 # Lädt registrierte User aus users.txt in das User dict
 def load_registered_users():
     try:
@@ -81,8 +82,8 @@ def leave_lobby(sid):
     old_lobby = client.current_lobby
 
     events.sio.leave_room(sid, old_lobby.id)
-    old_lobby.remove_client(client)
 
+    old_lobby.remove_client(client)
 
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
 
@@ -118,19 +119,53 @@ def is_already_on(name):
     return False
 
 
+def generate_track_assets(track_length):
+    amounts = track_length // 20000
+    assets = []
+
+    for i in range(amounts):
+        asset = {
+            'model': random.randint(0, 23),
+            'pos': i * 20000,
+            'side': random.choice([1.5, -1.5])
+        }
+        assets.append(asset)
+    return assets
+
+
 # Generiert eine Strecke für das Rennen der Lobby
 def generate_track():
     print("generate new track...")
     # segments = random.randint(40, 60)
-    segments = 3
+    segments = 10
     track = []
+    fl_height = 0
+    height_tracker = 0
+    first_height = 0
 
     for i in range(0, segments):
+        height = random.choice([-40, -20, 0, 20, 40])
+
+        if i == 0:
+            fl_height = height
+
+        if i == segments - 1:
+            height = fl_height
+
+        height_tracker += height
+
+
+        print(str(i), ". height -> ", str(height))
+        print(str(i), ". first height - height_tracker-> ", str(first_height - height_tracker))
+        print(str(i), ". first height", str(first_height))
+        print(str(i), ". height tracker", str(height_tracker))
+
         temp_dict = {
             'segment_length': random.randint(50, 200),
-            'curve_strength': random.randint(-6, 6),
-            'hill_height': 0
+            'curve_strength': random.randint(-4, 4),
+            'hill_height': height,
         }
+
         track.append(temp_dict)
 
     return track
