@@ -1,4 +1,3 @@
-import json
 import random
 import string
 import events
@@ -9,9 +8,6 @@ connected_clients = list()
 
 # User die aktuell registriert sind
 users = {}
-
-# Pfad zum
-file_path = "users.txt"
 
 # Set aus Lobbies
 lobbies = set()

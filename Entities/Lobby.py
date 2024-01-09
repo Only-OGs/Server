@@ -1,7 +1,5 @@
 import eventlet
-
 eventlet.monkey_patch()
-from datetime import datetime
 import logic
 import events
 import random
