@@ -1,5 +1,6 @@
 import socketio
 import logic
+import eventlet
 from Entities import Client as Client
 from Entities import Lobby as Lobby
 from sqlite.database import Database
