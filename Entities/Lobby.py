@@ -224,7 +224,7 @@ class Lobby:
     # Funktion die für jeden Spieler überprüft, ob er eine Runde abgeschlossen oder das Rennen beendet hat
     def lap_watcher(self, player_index):
         player = self.positions[player_index]
-        print(f"Created lap_watcher for {player['id']}")
+        logging.info(f"Created lap_watcher for {player['id']}")
         counter = 0
         last_pos = player['pos']
         last_finish = 0
@@ -305,7 +305,7 @@ class Lobby:
     # Spieler ist bereit
     def is_ready(self, client):
         self.isReady.add(client)
-        print(f"{client.username} in lobby  {self.id} is ready")
+        logging.info(f"{client.username} in lobby  {self.id} is ready")
         self.check_all_ready()
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
