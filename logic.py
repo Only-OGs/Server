@@ -1,6 +1,7 @@
 import random
 import string
 import events
+import logging
 
 # Clients die aktuell connected sind, Value ist True, wenn diese nur connected sind,
 # sind sie tatsächlich eingeloggt haben sie einen Username
@@ -16,7 +17,7 @@ lobbies = set()
 # Gebe alle Clients in der Server Konsole aus
 def get_clients():
     for client in connected_clients:
-        print("*", client, "*")
+        logging.info(f"* {client} *")
 
 
 # Kriege den Client Objekt zur passenden SID
@@ -61,7 +62,7 @@ def leave_lobby(sid):
 
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
 
-    print("sent ", response_data, " to ", sid)
+    logging.info(f"sent {response_data} to {sid}")
 
     events.sio.emit('player_leave', response_data, room=old_lobby.id)
 
@@ -82,7 +83,7 @@ def join_lobby(sid, new_lobby):
 
     events.sio.enter_room(sid, new_lobby.id)
     events.sio.emit('lobby_management', response_data, room=new_lobby.id)
-    print("sent ", response_data, " to ", sid)
+    logging.info(f"sent  {response_data} to {sid}")
 
 
 # Prüft, ob Client bereits eingeloggt ist

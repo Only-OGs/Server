@@ -3,6 +3,7 @@ eventlet.monkey_patch()
 import logic
 import events
 import random
+import logging
 
 
 #
@@ -183,7 +184,7 @@ class Lobby:
             'ready': self.get_ready_string()}
 
         events.sio.emit('lobby_management', response_data, room=client.sid)
-        print("sent -> ", response_data, " to ", client.username)
+        logging.info(f"sent -> {response_data} to {client.username}")
 
     # Fügt Spieler dem Leaderboard hinzu
     def add_leaderbord(self, player):
@@ -202,11 +203,11 @@ class Lobby:
     def race_finished(self):
         for player in self.positions:
             if not player['race_finished'] and not player['npc']:
-                print(player['id'], " is not finished yet")
+                logging.info(f"{player['id']} is not finished yet")
                 return False
 
         self.RaceFinished = True
-        print("Race is finished in Lobby ", self.id)
+        logging.info(f"Race is finished in Lobby {self.id}")
         events.sio.emit('get_leaderboard', self.leaderboard, room=self.id)
         return self.RaceFinished
 
@@ -221,7 +222,7 @@ class Lobby:
     # Funktion die für jeden Spieler überprüft, ob er eine Runde abgeschlossen oder das Rennen beendet hat
     def lap_watcher(self, player_index):
         player = self.positions[player_index]
-        print("Created lap_watcher for ", player['id'])
+        print(f"Created lap_watcher for {player['id']}")
         counter = 0
         last_pos = player['pos']
         last_finish = 0
@@ -235,11 +236,11 @@ class Lobby:
                 player['lap_time'] = self.format_time(counter)
                 player['lap_times'].sort()
                 player['best_time'] = self.format_time(player['lap_times'][0])
-                print(player['lap_times'])
+                logging.info(player['lap_times'])
                 counter = 0
             if player['lap'] > 3:
-                print(player)
-                print(player['id'], " is finished")
+                logging.info(player)
+                logging.info(f"{player['id']} is finished")
                 player['lap'] -= 1
                 player['race_finished'] = True
                 self.add_leaderbord(player)
@@ -270,7 +271,7 @@ class Lobby:
 
         # Zerstöre Lobby wenn leer
         if self.connections == 0:
-            print(self.id, ' deleted')
+            logging.info(f'{self.id} deleted')
             logic.lobbies.remove(self)
 
         if self.check_all_ready():
@@ -284,7 +285,7 @@ class Lobby:
             'ready': self.get_ready_string()}
 
         events.sio.emit('lobby_management', response_data, room=self.id)
-        print("sent -> ", response_data, " to ", client.username)
+        logging.info(f"sent -> {response_data} to {client.username}")
         return True
 
     # Gebe String mit Namen der Spieler getrennt durch ; wieder
@@ -302,7 +303,7 @@ class Lobby:
     # Spieler ist bereit
     def is_ready(self, client):
         self.isReady.add(client)
-        print(client.username, " in lobby ", self.id, " is ready")
+        print(f"{client.username} in lobby  {self.id} is ready")
         self.check_all_ready()
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
             self.init_game_start()
@@ -310,7 +311,7 @@ class Lobby:
     # Spieler ist nicht mehr bereit
     def not_ready(self, client):
         self.isReady.remove(client)
-        print(client.username, " in lobby ", self.id, " is not ready")
+        logging.info(f"{client.username} in lobby {self.id} is not ready")
         self.check_all_ready()
 
         if (self.allReady and len(self.clients) > 1) and not self.timer_started:
@@ -329,20 +330,20 @@ class Lobby:
     def _timer(self):
         counter = 10
 
-        print("Start counting the timer")
+        logging.info("Start counting the timer")
         self.timer_started = True
 
         while counter != -2:
             if (not self.check_all_ready() and self.connections > 1) or self.connections == 1:
                 events.sio.emit("timer_abrupt", "Timer has been abrupt", room=self.id)
-                print("timer_abrupt sent to ", self.id)
+                logging.info("timer_abrupt sent to ", self.id)
                 self.timer_started = False
                 return
 
-            print(self.id, " counter is ", counter)
+            logging.info(f"{self.id} counter is {counter}")
             eventlet.sleep(1)
             events.sio.emit("timer_countdown", counter, room=self.id)
-            print("sent countdown ", counter, " to ", self.id)
+            logging.info(f"sent countdown  {counter} to {self.id}")
             counter -= 1
 
         if self.timer_started:
@@ -354,7 +355,7 @@ class Lobby:
     # Startet einen Thread in der die Timer Methode ausgeführt wird
     def init_game_start(self):
         if not self.timer_started:
-            print("Initiate thread for timer")
+            logging.info("Initiate thread for timer")
             eventlet.spawn(self._timer)
 
     # Berechnet neues Offset für AI-Autos
@@ -388,7 +389,7 @@ class Lobby:
 
     # Bewegt die AI Autos
     def _ai_racer(self):
-        print("AI RACING STARTS - THREADED")
+        logging.info("AI RACING STARTS - THREADED")
 
         while not self.RaceFinished:
             eventlet.sleep(float(1 / 60))
@@ -425,20 +426,25 @@ class Lobby:
     def _race_timer(self):
         events.sio.emit("start_race_timer", "Rennen beginnt..", room=self.id)
         eventlet.sleep(1)
+
         events.sio.emit("start_race_timer", "5", room=self.id)
-        print(self.id, " race begins in 5")
+        logging.info(f"{self.id} race begins in 5")
         eventlet.sleep(1)
+
         events.sio.emit("start_race_timer", "4", room=self.id)
-        print(self.id, " race begins in 4")
+        logging.info(f"{self.id} race begins in 4")
         eventlet.sleep(1)
+
         events.sio.emit("start_race_timer", "3", room=self.id)
-        print(self.id, " race begins in 3")
+        logging.info(f"{self.id} race begins in 3")
         eventlet.sleep(1)
+
         events.sio.emit("start_race_timer", "2", room=self.id)
-        print(self.id, " race begins in 2")
+        logging.info(f"{self.id} race begins in 2")
         eventlet.sleep(1)
+
         events.sio.emit("start_race_timer", "1", room=self.id)
-        print(self.id, " race begins in 1")
+        logging.info(f"{self.id} race begins in 1")
         eventlet.sleep(1)
         events.sio.emit("start_race", "Go!", room=self.id)
         self.pool.spawn(self._ai_racer())
@@ -450,9 +456,9 @@ class Lobby:
 
     # Startet das Rennen
     def start_race(self):
-        print("Start Race, self.raceStart is ", self.raceStarted)
+        logging.info(f"Start Race, self.raceStart is {self.raceStarted}")
         self.raceStarted = True
-        print("self.raceStart now is ", self.raceStarted)
+        logging.info(f"self.raceStart now is {self.raceStarted}")
         self.pool.spawn(self._race_timer())
         return
 
@@ -461,7 +467,7 @@ class Lobby:
         self.add_car(client.username, False)
         self.isIngame.add(client)
         events.sio.emit("wait_for_start", self.positions, room=self.id)
-        print("sent :", self.positions, " -> ", client.username, " and everyone in his lobby")
+        logging.info(f"sent : {self.positions} -> {client.username} and everyone in his lobby")
         if len(self.isIngame) == self.max_players and not self.raceStarted:
             self.start_race()
 
