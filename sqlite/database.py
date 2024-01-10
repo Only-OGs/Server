@@ -1,6 +1,8 @@
 import sqlite3
 import hashlib
-
+import logging as log
+handle = "OGRacerServer"
+logging = log.getLogger(handle)
 
 #
 # Diese Klasse kümmert sich um die SQLite Datenbank inklusive aller nötigen Funktionen
@@ -14,15 +16,15 @@ class Database:
         self.conn = sqlite3.connect(self.db_name)
         self.cr = self.conn.cursor()
         self.initialize_db()
-        print("database initialized")
+        logging.info("database initialized")
 
     # Überprüft ob User existiert
     def user_exist(self, username):
-        print("check if user exists")
+        logging.info("check if user exists")
         self.cr.execute(f'SELECT * FROM user WHERE name = ?', (username,))
 
         if self.cr.fetchall():
-            print(f"{username} already existent in database {self.db_name}")
+            logging.info(f"{username} already existent in database {self.db_name}")
             return True
         return False
 
@@ -33,18 +35,18 @@ class Database:
             self.cr.execute(f'SELECT * FROM user WHERE name = ? AND password = ?', (username, password,))
             self.conn.commit()
         except sqlite3.Error as e:
-            print("SQLite-Fehler:", e)
+            logging.info(f"SQLite-Fehler: {e}")
 
         if self.cr.fetchall():
-            print(f"correct credentials found for {username} in {self.db_name}")
+            logging.info(f"correct credentials found for {username} in {self.db_name}")
             return True
         return False
 
     # Legt User in der Datenbank
     def add_user(self, username, passw):
         password = hashlib.sha256(passw.encode()).hexdigest()
-        print(password)
-        print("add user")
+        logging.info(password)
+        logging.info("add user")
         try:
             self.cr.execute(f'''
             INSERT INTO user (name, password, score)
@@ -52,9 +54,9 @@ class Database:
                     (?,?,0)
             ''', (username, password,))
             self.conn.commit()
-            print("Added ", username, " to database ", self.db_name)
+            logging.info(f"Added {username} to database  {self.db_name}")
         except sqlite3.Error as e:
-            print("SQLite-Fehler:", e)
+            logging.info("SQLite-Fehler:", e)
 
         return
 

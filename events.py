@@ -1,8 +1,12 @@
 import socketio
 import logic
+import eventlet
 from Entities import Client as Client
 from Entities import Lobby as Lobby
 from sqlite.database import Database
+import logging as log
+handle = "OGRacerServer"
+logging = log.getLogger(handle)
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
@@ -15,7 +19,7 @@ def connect(sid, environ):
     client = Client.Client(sid)
     logic.connected_clients.append(client)
     sio.emit('connection_success', sid, room=sid)
-    print(f"Client connected: {sid}, Current Players: {logic.get_clients()}")
+    logging.info(f"Client connected: {sid}, Current Players: {logic.get_clients()}")
 
 
 # Verbindungsabbruch eines Clients
@@ -28,7 +32,7 @@ def disconnect(sid):
         logic.leave_lobby(sid)
     logic.connected_clients.remove(client)
 
-    print(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
+    logging.info(f"Client disconnected: {sid}, Current Players: {logic.get_clients()}")
 
 
 # Client will Lobby verlassen
@@ -40,7 +44,7 @@ def leave_lobby(sid):
 # Login, prüft Benutzernamen auf Existenz und in solchem Fall auch auf korrektes Passwort
 @sio.event
 def login(sid, data):
-    print("received ", data, " from ", sid)
+    logging.info(f"received {data} from {sid}")
     client = logic.get_client(sid)
 
     name = data["user"]
@@ -72,13 +76,13 @@ def login(sid, data):
 
     sio.emit('login', response_data, room=sid)
 
-    print("sent ", response_data, " to ", sid)
+    logging.info(f"sent {response_data} to {sid}")
 
 
 # Client loggt sich aus
 @sio.event
 def logout(sid):
-    print("received logout request from ", sid)
+    logging.info(f"received logout request from {sid}")
     client = logic.get_client(sid)
 
     try:
@@ -89,19 +93,19 @@ def logout(sid):
         client.username = False
         if client.current_lobby is not False:
             logic.leave_lobby(sid)
-        print(str(name) + " wurde ausgeloggt.")
+        logging.info(f"{str(name)} wurde ausgeloggt.")
     except Exception as e:
         response_data = {'status': 'logout_failed', 'message': "Fehler beim Logout"}
 
     sio.emit('logout', response_data, room=sid)
 
-    print("sent ", response_data, " to ", sid)
+    logging.info(f"sent  {response_data} to {sid}")
 
 
 # Registrierung, prüft ob User bereits existiert, sollte dem nicht so sein, wird er, angelegt
 @sio.event
 def register(sid, data):
-    print("received ", data, " from ", sid)
+    logging.info(f"received  {data}  from  {sid}")
     name = data["user"]
     password = data["password"]
 
@@ -113,13 +117,13 @@ def register(sid, data):
 
     sio.emit('register', response_data, room=sid)
 
-    print("sent ", response_data, " to ", sid)
+    logging.info(f"sent  {response_data} to {sid}")
 
 
 # Client will Lobby erstellen
 @sio.event
 def create_lobby(sid):
-    print("received lobby request from ", sid)
+    logging.info(f"received lobby request from {sid}")
     client = logic.get_client(sid)
 
     lobby = Lobby.Lobby()
@@ -131,7 +135,7 @@ def create_lobby(sid):
 
     sio.emit('lobby_created', response_data, room=sid)
 
-    print("sent ", response_data, " to ", sid)
+    logging.info(f"sent  {response_data} to {sid}")
 
 
 # Chat-Nachrichten in Lobby
@@ -143,13 +147,13 @@ def sent_message(sid, chat_message):
     lobby = client.current_lobby
 
     sio.emit('new_message', name + ";" + chat_message, room=lobby.id)
-    print("LOBBY -", lobby.id, ": ", name, " sent message -> ", chat_message)
+    logging.info(f"LOBBY - {lobby.id} : {name}  sent message ->  {chat_message}")
 
 
 # Client erklärt sich bereit
 @sio.event
 def is_ready(sid):
-    print(sid, " wants to be ready")
+    logging.info(f"{sid} wants to be ready")
     client = logic.get_client(sid)
     lobby = client.current_lobby
     lobby.is_ready(client)
@@ -168,7 +172,7 @@ def is_ready(sid):
 # Client erklärt sich nicht mehr bereit
 @sio.event
 def not_ready(sid):
-    print(sid, " wants to be not ready anymore")
+    logging.info(f"{sid} wants to be not ready anymore")
     client = logic.get_client(sid)
     lobby = client.current_lobby
     lobby.not_ready(client)
@@ -187,7 +191,7 @@ def not_ready(sid):
 # Client will Lobby per Code beitreten
 @sio.event
 def join_lobby(sid, data):
-    print("received ", data, " from ", sid)
+    logging.info("received ", data, " from ", sid)
     response_data = "nothing"
     new_lobby = logic.get_lobby_by_code(data["lobby"])
 
@@ -214,15 +218,15 @@ def join_lobby(sid, data):
 
     sio.emit("search_lobby", response_data, room=sid)
 
-    print(logic.connected_clients)
-    print(logic.users)
-    print("sent ", response_data, " to ", sid)
+    logging.info(logic.connected_clients)
+    logging.info(logic.users)
+    logging.info(f"sent {response_data} to  {sid}")
 
 
 # Client gibt an das er das Spiel geladen hat
 @sio.event
 def client_is_ingame(sid):
-    print(sid, " is ingame")
+    logging.info(f"{sid} is ingame")
     client = logic.get_client(sid)
     lobby = client.current_lobby
     lobby.place_client_on_position(client)
@@ -242,7 +246,7 @@ def ingame_pos(sid, data):
 # Client will zufällige Lobby haben
 @sio.event
 def get_lobby(sid):
-    print("received random lobby request from ", sid)
+    logging.info(f"received random lobby request from {sid}")
 
     response_data = {
         'status': 'failed',
