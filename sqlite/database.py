@@ -1,7 +1,7 @@
 import sqlite3
 import hashlib
 import logging as log
-handle = "my-app"
+handle = "OGRacerServer"
 logging = log.getLogger(handle)
 
 #

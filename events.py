@@ -5,7 +5,7 @@ from Entities import Client as Client
 from Entities import Lobby as Lobby
 from sqlite.database import Database
 import logging as log
-handle = "my-app"
+handle = "OGRacerServer"
 logging = log.getLogger(handle)
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')

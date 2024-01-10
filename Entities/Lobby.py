@@ -4,7 +4,7 @@ import logic
 import events
 import random
 import logging as log
-handle = "my-app"
+handle = "OGRacerServer"
 logging = log.getLogger(handle)
 
 

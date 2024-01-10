@@ -6,7 +6,7 @@ if __name__ == '__main__':
     log.root.setLevel(log.NOTSET)
     log.basicConfig(level=log.NOTSET)
 
-    handle = "my-app"
+    handle = "OGRacerServer"
     logging = log.getLogger(handle)
 
     # Starten mit eventlet

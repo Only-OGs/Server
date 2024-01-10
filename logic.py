@@ -2,7 +2,7 @@ import random
 import string
 import events
 import logging as log
-handle = "my-app"
+handle = "OGRacerServer"
 logging = log.getLogger(handle)
 
 # Clients die aktuell connected sind, Value ist True, wenn diese nur connected sind,
