@@ -1,6 +1,8 @@
 import sqlite3
 import hashlib
 import logging as log
+handle = "my-app"
+logging = log.getLogger(handle)
 
 #
 # Diese Klasse kümmert sich um die SQLite Datenbank inklusive aller nötigen Funktionen
