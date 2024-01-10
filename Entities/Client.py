@@ -1,3 +1,7 @@
+#
+#   Diese Klasse bündelt alle Informationen der Clients in Objekte
+#
+
 class Client:
     def __init__(self, sid):
         self.sid = sid

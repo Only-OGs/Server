@@ -1,7 +1,10 @@
 import sqlite3
-import logic
 import hashlib
 
+
+#
+# Diese Klasse kümmert sich um die SQLite Datenbank inklusive aller nötigen Funktionen
+#
 
 
 class Database:
@@ -10,8 +13,10 @@ class Database:
         self.db_name = db
         self.conn = sqlite3.connect(self.db_name)
         self.cr = self.conn.cursor()
+        self.initialize_db()
         print("database initialized")
 
+    # Überprüft ob User existiert
     def user_exist(self, username):
         print("check if user exists")
         self.cr.execute(f'SELECT * FROM user WHERE name = ?', (username,))
@@ -21,10 +26,11 @@ class Database:
             return True
         return False
 
+    # Überprüft ob Login korrekt ist
     def check_credentials(self, username, passw):
         password = hashlib.sha256(passw.encode()).hexdigest()
         try:
-            self.cr.execute(f'SELECT * FROM user WHERE name = ? AND password = ?', (username,password,))
+            self.cr.execute(f'SELECT * FROM user WHERE name = ? AND password = ?', (username, password,))
             self.conn.commit()
         except sqlite3.Error as e:
             print("SQLite-Fehler:", e)
@@ -34,6 +40,7 @@ class Database:
             return True
         return False
 
+    # Legt User in der Datenbank
     def add_user(self, username, passw):
         password = hashlib.sha256(passw.encode()).hexdigest()
         print(password)
@@ -51,10 +58,7 @@ class Database:
 
         return
 
-    def delete_user(self, username):
-
-        return
-
+    # Erstellt Datenbank falls nicht bereits existent
     def initialize_db(self):
         self.cr.execute('''
             CREATE TABLE IF NOT EXISTS user(
@@ -66,10 +70,3 @@ class Database:
         ''')
 
         self.conn.commit()
-
-    def migrate(self):
-        for user in logic.users.keys():
-            print(user, " : ", logic.users[user])
-            self.add_user(user, logic.users[user])
-        return
-

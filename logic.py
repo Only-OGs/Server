@@ -1,4 +1,3 @@
-import json
 import random
 import string
 import events
@@ -9,9 +8,6 @@ connected_clients = list()
 
 # User die aktuell registriert sind
 users = {}
-
-# Pfad zum
-file_path = "users.txt"
 
 # Set aus Lobbies
 lobbies = set()
@@ -28,22 +24,6 @@ def get_client(sid):
     for client in connected_clients:
         if client.sid == sid:
             return client
-
-# Lädt registrierte User aus users.txt in das User dict
-def load_registered_users():
-    try:
-        with open(file_path, 'r') as file:
-            for line in file:
-                # Annahme: Benutzername und Passwort sind durch ein Leerzeichen getrennt
-                username, password = line.strip().split()
-                users[username] = password
-
-    except FileNotFoundError:
-        print(f"Die Datei {file_path} wurde nicht gefunden.")
-        return None
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
-        return None
 
 
 # Generiere Lobby Code
@@ -70,19 +50,14 @@ def get_lobby_by_code(code):
             return lobby
 
 
-# Lobby starten
-def start_lobby(lobby):
-    # TODO: Lobby starten
-    return
-
-
+# Entferne Client aus Lobby
 def leave_lobby(sid):
     client = get_client(sid)
     old_lobby = client.current_lobby
 
     events.sio.leave_room(sid, old_lobby.id)
-    old_lobby.remove_client(client)
 
+    old_lobby.remove_client(client)
 
     response_data = {'status': 'left', 'message': f"{old_lobby.get_players()}", 'lobby': old_lobby.id}
 
@@ -118,19 +93,16 @@ def is_already_on(name):
     return False
 
 
-# Generiert eine Strecke für das Rennen der Lobby
-def generate_track():
-    print("generate new track...")
-    # segments = random.randint(40, 60)
-    segments = 3
-    track = []
+# Generiert Assets für die Strecke
+def generate_track_assets(track_length):
+    amounts = track_length // 5000
+    assets = []
 
-    for i in range(0, segments):
-        temp_dict = {
-            'segment_length': random.randint(50, 200),
-            'curve_strength': random.randint(-6, 6),
-            'hill_height': 0
+    for i in range(amounts):
+        asset = {
+            'model': random.randint(0, 23),
+            'pos': i * 5000,
+            'side': random.choice([1.5, -1.5])
         }
-        track.append(temp_dict)
-
-    return track
+        assets.append(asset)
+    return assets
