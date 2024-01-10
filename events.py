@@ -4,7 +4,9 @@ import eventlet
 from Entities import Client as Client
 from Entities import Lobby as Lobby
 from sqlite.database import Database
-import logging
+import logging as log
+handle = "my-app"
+logging = log.getLogger(handle)
 
 sio = socketio.Server(async_handlers=True, cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)

@@ -1,6 +1,6 @@
 import sqlite3
 import hashlib
-import logging
+import logging as log
 
 #
 # Diese Klasse kümmert sich um die SQLite Datenbank inklusive aller nötigen Funktionen

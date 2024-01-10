@@ -3,7 +3,9 @@ eventlet.monkey_patch()
 import logic
 import events
 import random
-import logging
+import logging as log
+handle = "my-app"
+logging = log.getLogger(handle)
 
 
 #
