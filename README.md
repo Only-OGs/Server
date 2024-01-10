@@ -7,7 +7,7 @@
 
 - eventlet
 
-- sqlite
+- sqlite3 (sollte in der )
 
 - hashlib
 
