@@ -7,9 +7,9 @@
 
 - eventlet
 
-- sqlite3 (sollte in der )
+- sqlite3 (sollte in der Standard Library vorhanden sein)
 
-- hashlib
+- hashlib (sollte in der Standard Library vorhanden sein)
 
 **Achtet darauf das ihr das Package python-socketio und nicht socketio ladet.**
 
